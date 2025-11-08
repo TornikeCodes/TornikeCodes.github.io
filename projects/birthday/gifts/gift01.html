@@ -6,49 +6,69 @@
 <title>Gift 1</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+  /* Body and gradient animation */
   body {
     margin:0;
-    height:100vh;
+    min-height:100vh;
+    font-family:'Poppins', sans-serif;
+    color:#4b2330;
+    overflow-y:auto;
+    background: linear-gradient(270deg, #ffdde1, #ee9ca7, #ffe7e7, #ffc3a0);
+    background-size: 800% 800%;
+    animation: gradientBG 30s ease infinite;
     display:flex;
     justify-content:center;
-    align-items:center;
-    font-family:'Poppins', sans-serif;
-    background: linear-gradient(135deg, #ffdde1, #ee9ca7);
-    color:#4b2330;
-    overflow:hidden;
-    text-align:center;
+    padding:50px 20px;
   }
+
+  @keyframes gradientBG {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
+  }
+
+  /* Gift container */
   .gift-container {
-    max-width:600px;
+    max-width:700px;
+    width:100%;
     padding:30px;
-    background:rgba(255,255,255,0.7);
+    background:rgba(255,255,255,0.75);
     border-radius:20px;
     box-shadow:0 15px 40px rgba(0,0,0,0.12);
     animation:fadeIn 1.5s ease forwards;
     opacity:0;
   }
+
   @keyframes fadeIn {
     0% {opacity:0; transform:translateY(20px);}
     100% {opacity:1; transform:translateY(0);}
   }
+
   h1 {
     font-size:2.4rem;
     margin-bottom:16px;
+    text-align:center;
   }
+
   p {
     font-size:1.2rem;
     line-height:1.6;
+    white-space: pre-wrap; /* preserves line breaks in your big message */
   }
+
   .heart {
     font-size:3rem;
     margin:20px 0;
     color:#ff6b9f;
     animation:beat 1s infinite;
+    text-align:center;
   }
+
   @keyframes beat {
     0%,100% {transform:scale(1);}
     50% {transform:scale(1.2);}
   }
+
   .back-btn {
     display:inline-block;
     margin-top:20px;
@@ -62,7 +82,12 @@
     text-decoration:none;
     transition:transform .2s;
   }
+
   .back-btn:hover {transform:translateY(-3px);}
+  .back-btn-container {
+    text-align:center;
+    margin-top:30px;
+  }
 </style>
 </head>
 <body>
@@ -86,7 +111,9 @@ I promise to spend the rest of our lives making you feel as loved and as celebra
 
 Have the most wonderful, amazing birthday, my darling. <br>
       <b>I LOVE YOU MORE THAN WORDS CAN SAY.</b></p>
-    <a class="back-btn" href="../index.html">Back to gifts</a>
+    <div class="back-btn-container">
+      <a class="back-btn" href="../index.html">Back to gifts</a>
+    </div>
   </div>
 </body>
 </html>
