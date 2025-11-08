@@ -1,26 +1,92 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Gift 01</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  body{margin:0;font-family:Georgia, 'Playfair Display', serif;background:linear-gradient(180deg,#fff3f5,#ffeef2);min-height:100vh;display:flex;align-items:center;justify-content:center}
-  .wrap{max-width:720px;padding:32px;background:white;border-radius:14px;box-shadow:0 20px 60px rgba(20,10,12,0.08);text-align:center}
-  h1{margin:0 0 12px;font-size:26px;color:#4b2330}
-  p{color:#6e555e}
-  .back{margin-top:18px;display:inline-block;padding:10px 14px;border-radius:10px;background:linear-gradient(90deg,#ff9bbf,#ff6b9f);color:white;text-decoration:none;font-weight:700}
+  body {
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:'Poppins', sans-serif;
+    background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+    color:#4b2330;
+    overflow:hidden;
+    text-align:center;
+  }
+  .gift-container {
+    max-width:600px;
+    padding:30px;
+    background:rgba(255,255,255,0.7);
+    border-radius:20px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    animation:fadeIn 1.5s ease forwards;
+    opacity:0;
+  }
+  @keyframes fadeIn {
+    0% {opacity:0; transform:translateY(20px);}
+    100% {opacity:1; transform:translateY(0);}
+  }
+  h1 {
+    font-size:2.4rem;
+    margin-bottom:16px;
+  }
+  p {
+    font-size:1.2rem;
+    line-height:1.6;
+  }
+  .heart {
+    font-size:3rem;
+    margin:20px 0;
+    color:#ff6b9f;
+    animation:beat 1s infinite;
+  }
+  @keyframes beat {
+    0%,100% {transform:scale(1);}
+    50% {transform:scale(1.2);}
+  }
+  .back-btn {
+    display:inline-block;
+    margin-top:20px;
+    padding:12px 24px;
+    background:#ff6b9f;
+    color:white;
+    font-weight:600;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    text-decoration:none;
+    transition:transform .2s;
+  }
+  .back-btn:hover {transform:translateY(-3px);}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>🎁 Gift 01 — Kiritimati Sunrise</h1>
-    <p>Happy first sunrise of your birthday. This is the first gift — replace this page's content with the real present (image, text, or a link to a surprise).</p>
+  <div class="gift-container">
+    <div class="heart">💖</div>
+    <h1>Happy Birthday!</h1>
+    <p>My love, I wanted to make sure you were the first person in the entire world to feel celebrated today. Right now, it's midnight on Christmas Island (Kiribati), the very first place your birthday begins on the map! As this special day starts to travel across the globe, I want you to know:</p>
+    <hr>
+    <p>
+<b>HAPPY BIRTHDAY TO THE LOVE OF MY LIFE!</b>
 
-    <!-- Example: show a photo -->
-    <!-- <img src="../assets/somephoto.jpg" alt="..." style="max-width:100%;border-radius:8px;margin-top:12px"> -->
+This day is entirely about celebrating YOU, the most incredible person I have ever known. I want this message to be huge because my love for you is even bigger. I honestly don't know where to begin to describe how much you mean to me, or how deeply I love you.
 
-    <a class="back" href="../index.html">Back to gifts</a>
+You aren't just my girlfriend. You are my best friend, my confidante, my favorite adventure partner, and the one person who can instantly make a bad day good just by being there. Before you, my world felt like it was in black and white, it was on the verge of falling apart, and when you walked in, when you spoke, when you told me that you loved me, you painted everything in the brightest, most beautiful colors.
+
+I love the quiet moments we share. The lazy mornings where I don't want to get up, the comfortable silences, the way you can make me smile without trying. But I also love your energy, your passion, and the fierce way you go after everything you believe in. Your kindness is a constant source of wonder to me. Your smile is my favorite thing in the world.
+
+Thank you for your patience, your understanding, and for making every single ordinary day feel extraordinary. Thank you for showing me what true, unconditional love feels like. I don't just love you; I cherish you, I admire you, and I am completely, utterly grateful for you.
+
+I promise to spend the rest of our lives making you feel as loved and as celebrated as you deserve to be, starting with this very first moment of your birthday.
+
+Have the most wonderful, amazing birthday, my darling. 
+      <b>I LOVE YOU MORE THAN WORDS CAN SAY.</b></p>
+    <a class="back-btn" href="../index.html">Back to gifts</a>
   </div>
 </body>
 </html>
