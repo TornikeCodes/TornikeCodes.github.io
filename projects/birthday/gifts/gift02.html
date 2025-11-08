@@ -3,20 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gift 2 - Our Song</title>
+<title>Gift 2 - Your Song</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   body {
     margin:0;
     height:100vh;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
     font-family:'Poppins', sans-serif;
     background: linear-gradient(270deg, #ffdde1, #ee9ca7, #ffe7e7, #ffc3a0);
     background-size: 800% 800%;
     animation: gradientBG 30s ease infinite;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     color:#4b2330;
     text-align:center;
   }
@@ -27,15 +26,22 @@
     100% {background-position:0% 50%;}
   }
 
-  h1 {
-    font-size:2.4rem;
-    margin-bottom:20px;
+  .container {
+    max-width: 600px;
+    width: 90%;
+    background: rgba(255,255,255,0.85);
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
   }
 
   .heart {
     font-size:3rem;
-    margin-bottom:20px;
     color:#ff6b9f;
+    margin-bottom:20px;
     animation:beat 1s infinite;
   }
 
@@ -44,35 +50,63 @@
     50% {transform:scale(1.2);}
   }
 
+  .caption {
+    font-size:1.1rem;
+    margin-bottom:20px;
+    line-height:1.5;
+  }
+
   .player {
+    width:100%;
     display:flex;
     flex-direction:column;
     align-items:center;
     gap:15px;
-    background:rgba(255,255,255,0.7);
-    padding:20px 30px;
-    border-radius:20px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.12);
   }
 
-  audio {
-    width:250px;
-    outline:none;
+  .controls {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:15px;
   }
 
-  .controls button {
+  .play-btn, .pause-btn {
     padding:10px 20px;
     font-size:1rem;
     border:none;
     border-radius:12px;
-    background:#ff6b9f;
-    color:white;
     cursor:pointer;
     font-weight:600;
+    background:#ff6b9f;
+    color:white;
     transition:transform .2s;
   }
 
-  .controls button:hover {transform:translateY(-2px);}
+  .play-btn:hover, .pause-btn:hover {transform:translateY(-2px);}
+
+  .progress-container {
+    width:100%;
+    height:8px;
+    background:rgba(0,0,0,0.1);
+    border-radius:4px;
+    cursor:pointer;
+  }
+
+  .progress {
+    height:100%;
+    width:0%;
+    background:#ff6b9f;
+    border-radius:4px;
+  }
+
+  .time {
+    display:flex;
+    justify-content:space-between;
+    font-size:0.9rem;
+    width:100%;
+  }
+
   .back-btn {
     margin-top:25px;
     padding:12px 24px;
@@ -87,36 +121,75 @@
 </style>
 </head>
 <body>
-  <div class="heart">💖</div>
-  <h1>Listen to your special song</h1>
-
-  <div class="player">
-    <audio id="song" src="your-song.mp3"></audio>
-    <div class="controls">
-      <button id="playBtn">Play</button>
-      <button id="pauseBtn">Pause</button>
+  <div class="container">
+    <div class="heart">💖</div>
+    <div class="caption">
+      As your second gift, I sang <b>Chasing Cars</b>, our special song 💌.<br>
+      Sorry if I’m not very good at singing 🥹
     </div>
+
+    <div class="player">
+      <audio id="song" src="your-song.mp3"></audio>
+
+      <div class="controls">
+        <button id="playBtn" class="play-btn">Play</button>
+        <button id="pauseBtn" class="pause-btn">Pause</button>
+      </div>
+
+      <div class="progress-container" id="progressContainer">
+        <div class="progress" id="progress"></div>
+      </div>
+      <div class="time">
+        <span id="currentTime">0:00</span>
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+
+    <a class="back-btn" href="../index.html">Back to gifts</a>
   </div>
 
-  <a class="back-btn" href="../index.html">Back to gifts</a>
-
 <script>
-  const song = document.getElementById('song');
-  const playBtn = document.getElementById('playBtn');
-  const pauseBtn = document.getElementById('pauseBtn');
+const song = document.getElementById('song');
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const progress = document.getElementById('progress');
+const progressContainer = document.getElementById('progressContainer');
+const currentTimeEl = document.getElementById('currentTime');
+const durationEl = document.getElementById('duration');
 
-  playBtn.addEventListener('click', () => {
-    song.play().catch(()=>alert("Click anywhere on the page first to start the music due to browser restrictions."));
-  });
+// Format time in mm:ss
+function formatTime(seconds){
+    const min = Math.floor(seconds/60);
+    const sec = Math.floor(seconds%60);
+    return `${min}:${sec<10?'0':''}${sec}`;
+}
 
-  pauseBtn.addEventListener('click', () => {
-    song.pause();
-  });
+// Update progress bar
+song.addEventListener('timeupdate', () => {
+    const percent = (song.currentTime/song.duration)*100;
+    progress.style.width = percent+'%';
+    currentTimeEl.textContent = formatTime(song.currentTime);
+    durationEl.textContent = formatTime(song.duration);
+});
 
-  // optional: autoplay when page opens (browser might require a click first)
-  window.addEventListener('load', () => {
-    song.play().catch(()=>{}); 
-  });
+// Play/Pause
+playBtn.addEventListener('click', ()=>{song.play().catch(()=>{});});
+pauseBtn.addEventListener('click', ()=>{song.pause();});
+
+// Seek functionality
+progressContainer.addEventListener('click', e=>{
+    const width = progressContainer.clientWidth;
+    const clickX = e.offsetX;
+    const duration = song.duration;
+    song.currentTime = (clickX/width)*duration;
+});
+
+// Set initial duration when metadata is loaded
+song.addEventListener('loadedmetadata', ()=>{durationEl.textContent = formatTime(song.duration);});
+
+// Optional autoplay on page load (may require click due to browser restrictions)
+window.addEventListener('load', ()=>{song.play().catch(()=>{});});
+
 </script>
 </body>
 </html>
