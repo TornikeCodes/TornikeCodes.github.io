@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Your Birthday Gifts</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="stage">
+    <div class="card">
+      <div class="meta">
+        <div class="tz-label">🌍 Timezone <span id="tzLabel">UTC+14</span></div>
+        <div class="sub muted">A gift for each timezone — from the first sunrise to the last</div>
+      </div>
+
+      <div id="countWrap" class="count-wrap">
+        <div id="countdown" class="countdown">--:--:--</div>
+        <div id="status" class="status muted">Calculating…</div>
+      </div>
+
+      <button id="openFull" class="open-btn hidden" aria-hidden="true">💌 Tap anywhere to open</button>
+
+      <div id="overlayAnim" class="overlay hidden" aria-hidden="true">
+        <div class="envelope">
+          <div class="env-top"></div>
+          <div class="env-body"></div>
+        </div>
+      </div>
+
+      <button id="muteBtn" class="mute" title="Mute / Unmute">🔊</button>
+    </div>
+  </main>
+
+  <audio id="bgMusic" src="assets/music.mp3" loop preload="auto"></audio>
+  <audio id="openSfx" src="assets/open-sfx.mp3" preload="auto"></audio>
+
+<script src="script.js"></script>
+</body>
+</html>
