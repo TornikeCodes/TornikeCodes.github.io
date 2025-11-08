@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Time-Locked Birthday Gifts</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1320;--accent:#ff6b9f;--muted:#9aa6b2;--glass:rgba(255,255,255,0.03)}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;color:#e6eef6;background:linear-gradient(180deg,#061226 0%,#081a2a 100%);}
+    .app{max-width:1100px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    label{font-size:13px;color:var(--muted)}
+    input[type="date"],select,input[type="number"]{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:16px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:12px;box-shadow:0 4px 18px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .tz{display:flex;align-items:center;justify-content:space-between}
+    .tz .label{font-weight:600}
+    .muted{color:var(--muted);font-size:13px}
+    .lock{display:flex;align-items:center;gap:8px}
+    button{background:var(--accent);border:none;padding:8px 10px;border-radius:8px;color:white;font-weight:600;cursor:pointer}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit}
+    textarea{width:100%;min-height:82px;border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .small{font-size:12px}
+    .status{margin-top:8px}
+    .unlocked{color:#8ff4c1}
+    .locked{color:#ffb4c8}
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
+    .row{display:flex;gap:8px;align-items:center}
+    .hint{font-size:12px;color:var(--muted)}
+    .topline{display:flex;gap:12px;align-items:center}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Time‑Locked Birthday Gifts</h1>
+        <div class="hint">Create 24+ time-locked gifts that unlock when each timezone hits your chosen birthday date.</div>
+      </div>
+      <div style="margin-left:auto" class="controls">
+        <label class="small">Recipient birthday (their local date)</label>
+        <input id="birthday" type="date" />
+        <label class="small">Recipient UTC offset</label>
+        <input id="recipientOffset" type="number" value="4" min="-12" max="14" style="width:84px" />
+        <label class="small">Your UTC offset</label>
+        <input id="yourOffset" type="number" value="-5" min="-12" max="14" style="width:84px" />
+        <button id="apply">Apply</button>
+      </div>
+    </header>
+
+    <div class="topline">
+      <div class="muted">Timezones: UTC+14 → UTC−12 (chronological)</div>
+      <div style="margin-left:auto" class="row">
+        <label class="small">Force unlock</label>
+        <input id="forceToggle" type="checkbox" />
+      </div>
+    </div>
+
+    <div id="grid" class="grid" aria-live="polite"></div>
+
+    <footer>
+      Tip: enter the recipient's birthday date (their local date) and their UTC offset (e.g. Dubai is +4). The page will compute when midnight happens in every timezone for that date. Save messages to local storage. Use "Force unlock" for testing.
+    </footer>
+  </div>
+
+  <script>
+    // Timezone offsets from +14 down to -12
+    const offsets = [];
+    for (let o = 14; o >= -12; o--) offsets.push(o);
+
+    const examplePlaces = {
+      14: 'Kiritimati (Kiribati) — UTC+14',
+      13: 'Tonga/Samoa',
+      12: 'Fiji / Parts of New Zealand',
+      11: 'Solomon Is., Vanuatu',
+      10: 'Australia (east) / PNG',
+      9: 'Japan / Korea',
+      8: 'China / Singapore',
+      7: 'Thailand / Vietnam',
+      6: 'Bangladesh / Bhutan',
+      5: 'Pakistan',
+      4: 'Dubai (UAE) — UTC+4',
+      3: 'Moscow / East Europe',
+      2: 'Central Europe',
+      1: 'West/Central Europe',
+      0: 'United Kingdom (GMT)',
+      '-1': 'Azores',
+      '-2': 'Atlantic islands',
+      '-3': 'Argentina / Brazil (part)',
+      '-4': 'Caribbean / Venezuela',
+      '-5': 'New York (Eastern)',
+      '-6': 'Central US',
+      '-7': 'Mountain US',
+      '-8': 'Pacific US',
+      '-9': 'Alaska',
+      '-10': 'Hawaii',
+      '-11': 'American Samoa',
+      '-12': 'Baker / Howland (uninhabited)'
+    };
+
+    const grid = document.getElementById('grid');
+    const birthdayInput = document.getElementById('birthday');
+    const recipientOffsetInput = document.getElementById('recipientOffset');
+    const yourOffsetInput = document.getElementById('yourOffset');
+    const applyBtn = document.getElementById('apply');
+    const forceToggle = document.getElementById('forceToggle');
+
+    // load saved UI state
+    const saved = JSON.parse(localStorage.getItem('tlbg-ui') || '{}');
+    if (saved.birthday) birthdayInput.value = saved.birthday;
+    if (saved.recipientOffset !== undefined) recipientOffsetInput.value = saved.recipientOffset;
+    if (saved.yourOffset !== undefined) yourOffsetInput.value = saved.yourOffset;
+
+    function utcMidnightFor(dateStr) {
+      // dateStr 'YYYY-MM-DD' produce UTC ms for that date's 00:00 UTC
+      const [y, m, d] = (dateStr || '').split('-').map(Number);
+      if (!y) return null;
+      return Date.UTC(y, m - 1, d, 0, 0, 0);
+    }
+
+    function computeUnlockUTCms(birthdayStr, tzOffset) {
+      // local midnight in timezone tzOffset for the given date
+      // UTC = localMidnight - tzOffsetHours
+      const localMidnightUTCms = utcMidnightFor(birthdayStr);
+      if (!localMidnightUTCms) return null;
+      return localMidnightUTCms - (tzOffset * 3600 * 1000);
+    }
+
+    function formatLocalTime(ms, offsetHours) {
+      // return a human-friendly local time string for the given utc ms in a timezone offset
+      const d = new Date(ms + (offsetHours * 3600 * 1000));
+      // e.g., 2025-11-10 00:00
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      const hh = String(d.getUTCHours()).padStart(2, '0');
+      const mm = String(d.getUTCMinutes()).padStart(2, '0');
+      return `${y}-${m}-${day} ${hh}:${mm}`;
+    }
+
+    function storageKey(bday, recOffset, tz) {
+      return `gift|${bday}|rec${recOffset}|tz${tz}`;
+    }
+
+    function buildCard(tz) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const labelRow = document.createElement('div');
+      labelRow.className = 'tz';
+      const left = document.createElement('div');
+      left.innerHTML = `<div class="label">UTC${tz >= 0 ? '+' + tz : tz}</div><div class="muted small">${examplePlaces[tz] || ''}</div>`;
+      const right = document.createElement('div');
+      right.className = 'lock';
+      labelRow.appendChild(left);
+      labelRow.appendChild(right);
+
+      const status = document.createElement('div');
+      status.className = 'status muted small';
+      status.textContent = '—';
+
+      const preview = document.createElement('div');
+      preview.style.marginTop = '8px';
+
+      const editWrap = document.createElement('div');
+      editWrap.style.marginTop = '8px';
+
+      const titleInput = document.createElement('input');
+      titleInput.placeholder = 'Title (e.g. "Sunrise over Kiritimati")';
+      titleInput.style.width = '100%';
+      titleInput.style.padding = '8px';
+      titleInput.style.borderRadius = '8px';
+      titleInput.style.background = 'transparent';
+      titleInput.style.border = '1px solid rgba(255,255,255,0.04)';
+      titleInput.style.color = 'inherit';
+
+      const textArea = document.createElement('textarea');
+      textArea.placeholder = 'Message (visible when unlocked)';
+
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'btn-ghost';
+      saveBtn.textContent = 'Save';
+
+      const unlockNowBtn = document.createElement('button');
+      unlockNowBtn.textContent = 'Open (if unlocked)';
+      unlockNowBtn.style.marginLeft = '8px';
+
+      editWrap.appendChild(titleInput);
+      editWrap.appendChild(textArea);
+      editWrap.appendChild(document.createElement('div'));
+      const btnRow = document.createElement('div');
+      btnRow.style.marginTop = '8px';
+      btnRow.appendChild(saveBtn);
+      btnRow.appendChild(unlockNowBtn);
+      editWrap.appendChild(btnRow);
+
+      card.appendChild(labelRow);
+      card.appendChild(status);
+      card.appendChild(preview);
+      card.appendChild(editWrap);
+
+      // load saved
+      function loadSaved(bday, recOffset) {
+        const key = storageKey(bday, recOffset, tz);
+        const raw = localStorage.getItem(key);
+        if (!raw) return;
+        try{
+          const obj = JSON.parse(raw);
+          titleInput.value = obj.title || '';
+          textArea.value = obj.msg || '';
+        } catch(e){}
+      }
+
+      function save(bday, recOffset) {
+        const key = storageKey(bday, recOffset, tz);
+        const obj = {title: titleInput.value, msg: textArea.value};
+        localStorage.setItem(key, JSON.stringify(obj));
+        showPreviewIfUnlocked(bday, recOffset);
+      }
+
+      saveBtn.addEventListener('click', ()=>{
+        const bday = birthdayInput.value;
+        const recOffset = Number(recipientOffsetInput.value);
+        if (!bday) return alert('Pick a birthday date first');
+        save(bday, recOffset);
+      });
+
+      unlockNowBtn.addEventListener('click', ()=>{
+        const bday = birthdayInput.value;
+        const recOffset = Number(recipientOffsetInput.value);
+        if (!bday) return alert('Pick a birthday date first');
+        const unlockMs = computeUnlockUTCms(bday, tz);
+        const now = Date.now();
+        const forced = forceToggle.checked;
+        if (forced || now >= unlockMs) {
+          renderUnlocked(bday, recOffset);
+        } else {
+          alert('This timezone hasn\'t reached midnight for that birthday yet.');
+        }
+      });
+
+      function renderLocked(unlockMs, bday, recOffset, yourOffset) {
+        const whenRec = formatLocalTime(unlockMs, recOffset);
+        const whenYou = formatLocalTime(unlockMs, yourOffset);
+        status.innerHTML = `<span class='locked'>Locked</span> — unlocks at recipient local ${whenRec} / your local ${whenYou}`;
+        preview.innerHTML = `<div class='muted small'>Locked content — visible at the moment this timezone hits midnight.</div>`;
+      }
+
+      function renderUnlocked(bday, recOffset) {
+        const key = storageKey(bday, recOffset, tz);
+        const raw = localStorage.getItem(key);
+        let title = '';
+        let msg = '';
+        if (raw) {
+          try{const obj = JSON.parse(raw); title = obj.title || ''; msg = obj.msg || '';}catch(e){}
+        }
+        status.innerHTML = `<span class='unlocked'>Unlocked</span>`;
+        preview.innerHTML = `<div style='font-weight:700;margin-bottom:6px'>${escapeHtml(title || 'A gift for you')}</div><div class='muted small'>${escapeHtml(msg || 'Open and enjoy 💌')}</div>`;
+      }
+
+      function showPreviewIfUnlocked(bday, recOffset) {
+        const unlockMs = computeUnlockUTCms(bday, tz);
+        const now = Date.now();
+        const forced = forceToggle.checked;
+        const yourOffset = Number(yourOffsetInput.value) || 0;
+        if (!unlockMs) {
+          status.textContent = 'Pick a birthday date to compute unlock times';
+          preview.innerHTML = '';
+          return;
+        }
+        if (forced || now >= unlockMs) {
+          renderUnlocked(bday, recOffset);
+        } else {
+          renderLocked(unlockMs, bday, recOffset, yourOffset);
+        }
+      }
+
+      // expose a refresh function
+      return {
+        el: card,
+        loadSaved,
+        showPreviewIfUnlocked
+      };
+    }
+
+    // escape simple
+    function escapeHtml(s){return (s||'').replace(/[&<>"']/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c];});}
+
+    // build all cards
+    const cards = offsets.map(tz => buildCard(tz));
+    cards.forEach(c => grid.appendChild(c.el));
+
+    function refreshAll() {
+      const bday = birthdayInput.value;
+      const recOffset = Number(recipientOffsetInput.value);
+      const yourOffset = Number(yourOffsetInput.value);
+      localStorage.setItem('tlbg-ui', JSON.stringify({birthday: bday, recipientOffset: recOffset, yourOffset: yourOffset}));
+      cards.forEach(c => {
+        c.loadSaved(bday, recOffset);
+        c.showPreviewIfUnlocked(bday, recOffset);
+      });
+    }
+
+    applyBtn.addEventListener('click', ()=>{
+      refreshAll();
+    });
+
+    // auto-refresh every 15s to update unlocks
+    setInterval(()=>{cards.forEach(c=>{c.showPreviewIfUnlocked(birthdayInput.value, Number(recipientOffsetInput.value))});}, 15000);
+
+    // initial render
+    refreshAll();
+
+    // convenience: prefill birthday today in recipient timezone by assuming recipient offset
+    (function prefillIfEmpty(){
+      if (!birthdayInput.value) {
+        const rec = Number(recipientOffsetInput.value || 4);
+        const now = Date.now();
+        // compute local date in recipient tz
+        const local = new Date(now + rec * 3600000);
+        const y = local.getUTCFullYear();
+        const m = String(local.getUTCMonth()+1).padStart(2,'0');
+        const d = String(local.getUTCDate()).padStart(2,'0');
+        birthdayInput.value = `${y}-${m}-${d}`;
+        refreshAll();
+      }
+    })();
+
+  </script>
+</body>
+</html>
