@@ -24,6 +24,17 @@
     muteBtn.textContent = muted ? '🔇' : '🔊';
   });
 
+  forceMusicBtn.addEventListener('click', () => {
+      bgMusic.load();  // ensure the file is loaded
+      bgMusic.play().then(() => {
+          alert('Music started!');
+      }).catch(err => {
+          console.error('Music play failed:', err);
+          alert('Music could not start. Check browser restrictions and file path.');
+      });
+  });
+
+  
   function tryPlayMusic(){
     if (!bgMusic) return;
     bgMusic.volume = 0.28;
