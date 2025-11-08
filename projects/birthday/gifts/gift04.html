@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift 4 - Puzzle</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+body {
+  margin:0;
+  height:100vh;
+  font-family:'Poppins', sans-serif;
+  background: linear-gradient(270deg, #ffdde1, #ee9ca7, #ffe7e7, #ffc3a0);
+  background-size: 800% 800%;
+  animation: gradientBG 30s ease infinite;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#4b2330;
+}
+
+@keyframes gradientBG {
+  0% {background-position:0% 50%;}
+  50% {background-position:100% 50%;}
+  100% {background-position:0% 50%;}
+}
+
+.container {
+  position:relative;
+  width:700px;
+  height:700px;
+  background:rgba(255,255,255,0.85);
+  border-radius:25px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.12);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+.puzzle-box {
+  position:relative;
+  width:400px;
+  height:200px;
+  background:#f9f0f0;
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap:2px;
+  border-radius:15px;
+  z-index:1;
+}
+
+.tile {
+  position:absolute;
+  width:100px;
+  height:100px;
+  cursor:grab;
+  border-radius:10px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.2);
+  background-size: 400px 200px;
+  transition: transform 0.3s ease, left 0.3s ease, top 0.3s ease;
+}
+
+.tile.dragging {
+  z-index:10;
+  opacity:0.9;
+}
+
+.status {
+  position:absolute;
+  bottom:10px;
+  font-size:1.1rem;
+  width:100%;
+  text-align:center;
+  font-weight:600;
+}
+
+.back-btn {
+  position:absolute;
+  bottom:40px;
+  padding:10px 20px;
+  background:#4b2330;
+  color:white;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* Heart particle effect */
+.heart {
+  position:absolute;
+  font-size:16px;
+  animation:floatUp 1s ease forwards;
+  pointer-events:none;
+  z-index:20;
+}
+
+@keyframes floatUp {
+  0% {transform:scale(1) translateY(0); opacity:1;}
+  100% {transform:scale(1.5) translateY(-50px); opacity:0;}
+}
+
+/* Confetti */
+.confetti-piece {
+  position:absolute;
+  width:8px; height:8px;
+  background: #ff6b9f;
+  opacity:0.8;
+  z-index:30;
+  animation:fall 2s linear forwards;
+}
+
+@keyframes fall {
+  0% {transform:translateY(0) rotate(0deg);}
+  100% {transform:translateY(300px) rotate(720deg); opacity:0;}
+}
+
+</style>
+</head>
+<body>
+<div class="container" id="container">
+  <div class="puzzle-box" id="puzzleBox"></div>
+  <div class="status" id="status">Arrange all tiles to complete the puzzle</div>
+  <button class="back-btn" onclick="window.location.href='../index.html'">Back to gifts</button>
+</div>
+
+<script>
+const imageSrc = 'your-image.jpg'; // replace with your image path
+const puzzleBox = document.getElementById('puzzleBox');
+const container = document.getElementById('container');
+const status = document.getElementById('status');
+
+const ROWS = 2;
+const COLS = 4;
+const TILE_WIDTH = 100;
+const TILE_HEIGHT = 100;
+let tiles = [];
+
+function createTiles() {
+  for(let i=0;i<8;i++){
+    const tile = document.createElement('div');
+    tile.classList.add('tile');
+    tile.style.backgroundImage = `url(${imageSrc})`;
+
+    const row = Math.floor(i / COLS);
+    const col = i % COLS;
+    tile.dataset.correctX = col*TILE_WIDTH;
+    tile.dataset.correctY = row*TILE_HEIGHT;
+
+    tile.style.backgroundPosition = `-${col*TILE_WIDTH}px -${row*TILE_HEIGHT}px`;
+
+    // random initial position
+    tile.style.left = Math.random()*(window.innerWidth-TILE_WIDTH)+'px';
+    tile.style.top = Math.random()*(window.innerHeight-TILE_HEIGHT)+'px';
+
+    container.appendChild(tile);
+    tiles.push(tile);
+
+    makeDraggable(tile);
+  }
+}
+
+function makeDraggable(tile){
+  let offsetX, offsetY, isDragging=false;
+
+  tile.addEventListener('mousedown', e=>{
+    isDragging=true;
+    tile.classList.add('dragging');
+    offsetX = e.clientX - tile.offsetLeft;
+    offsetY = e.clientY - tile.offsetTop;
+  });
+
+  window.addEventListener('mousemove', e=>{
+    if(!isDragging) return;
+    tile.style.left = (e.clientX - offsetX) + 'px';
+    tile.style.top = (e.clientY - offsetY) + 'px';
+  });
+
+  window.addEventListener('mouseup', e=>{
+    if(!isDragging) return;
+    isDragging=false;
+    tile.classList.remove('dragging');
+
+    const rect = puzzleBox.getBoundingClientRect();
+    const tileX = e.clientX - rect.left;
+    const tileY = e.clientY - rect.top;
+
+    if(tileX > 0 && tileX < rect.width && tileY > 0 && tileY < rect.height){
+      const snapX = Math.floor(tileX / TILE_WIDTH) * TILE_WIDTH;
+      const snapY = Math.floor(tileY / TILE_HEIGHT) * TILE_HEIGHT;
+
+      tile.style.left = rect.left + snapX + 'px';
+      tile.style.top = rect.top + snapY + 'px';
+
+      // Heart effect
+      spawnHeart(e.clientX, e.clientY);
+    }
+
+    checkCompletion();
+  });
+}
+
+function spawnHeart(x,y){
+  const heart = document.createElement('div');
+  heart.classList.add('heart');
+  heart.style.left = x+'px';
+  heart.style.top = y+'px';
+  heart.innerText='💖';
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),1000);
+}
+
+function spawnConfetti(){
+  for(let i=0;i<40;i++){
+    const c = document.createElement('div');
+    c.classList.add('confetti-piece');
+    c.style.left = Math.random()*container.clientWidth + 'px';
+    c.style.background = `hsl(${Math.random()*360},70%,70%)`;
+    container.appendChild(c);
+    setTimeout(()=>c.remove(),2000);
+  }
+}
+
+function checkCompletion(){
+  let correct = true;
+  const rect = puzzleBox.getBoundingClientRect();
+  tiles.forEach(tile=>{
+    const x = parseInt(tile.style.left) - rect.left;
+    const y = parseInt(tile.style.top) - rect.top;
+    if(Math.abs(x - tile.dataset.correctX) > 5 || Math.abs(y - tile.dataset.correctY) >5){
+      correct=false;
+    }
+  });
+
+  if(correct){
+    status.innerHTML = '🎉 Puzzle completed! <a id="downloadLink" href="'+imageSrc+'" download>Click here to download 💖</a>';
+    spawnConfetti();
+  } else {
+    status.innerText = 'Arrange all tiles to complete the puzzle';
+  }
+}
+
+createTiles();
+</script>
+</body>
+</html>
