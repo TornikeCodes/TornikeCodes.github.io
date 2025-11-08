@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift 3 - 3 Reasons I Love You</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin:0;
+    min-height:100vh;
+    font-family:'Poppins', sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(270deg, #ffdde1, #ee9ca7, #ffe7e7, #ffc3a0);
+    background-size: 800% 800%;
+    animation: gradientBG 30s ease infinite;
+    color:#4b2330;
+    text-align:center;
+    padding:50px 20px;
+  }
+
+  @keyframes gradientBG {
+    0% {background-position:0% 50%;}
+    50% {background-position:100% 50%;}
+    100% {background-position:0% 50%;}
+  }
+
+  .container {
+    max-width:700px;
+    width:100%;
+    background:rgba(255,255,255,0.85);
+    padding:30px;
+    border-radius:25px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.12);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:25px;
+  }
+
+  h1 {
+    font-size:2rem;
+    margin-bottom:10px;
+  }
+
+  .reason {
+    position:relative;
+    width:100%;
+    background:#ffe7e7;
+    border-radius:15px;
+    padding:20px;
+    font-size:1.2rem;
+    cursor:pointer;
+    overflow:hidden;
+    transition: transform 0.2s;
+  }
+
+  .reason:hover {transform:translateY(-3px);}
+
+  .overlay {
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    background:rgba(255,255,255,0.95);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:600;
+    color:#ff6b9f;
+    transition:opacity 0.3s;
+  }
+
+  .overlay.hidden {opacity:0; pointer-events:none;}
+
+  .heart {
+    font-size:2rem;
+    margin-bottom:10px;
+    color:#ff6b9f;
+    animation:beat 1s infinite;
+  }
+
+  @keyframes beat {
+    0%,100% {transform:scale(1);}
+    50% {transform:scale(1.2);}
+  }
+
+  .back-btn {
+    margin-top:20px;
+    padding:12px 24px;
+    background:#4b2330;
+    color:white;
+    font-weight:600;
+    border:none;
+    border-radius:12px;
+    text-decoration:none;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>3 Reasons I Love You 💖</h1>
+
+    <div class="reason" id="reason1">
+      <div class="heart">💖</div>
+      <div class="overlay">Click to reveal</div>
+      <div class="content" style="opacity:0;">
+        Your smile always brightens my day, even when things are tough.
+      </div>
+    </div>
+
+    <div class="reason" id="reason2">
+      <div class="heart">💖</div>
+      <div class="overlay">Click to reveal</div>
+      <div class="content" style="opacity:0;">
+        The way you care for others inspires me to be a better person.
+      </div>
+    </div>
+
+    <div class="reason" id="reason3">
+      <div class="heart">💖</div>
+      <div class="overlay">Click to reveal</div>
+      <div class="content" style="opacity:0;">
+        Every moment with you feels magical and full of love.
+      </div>
+    </div>
+
+    <a class="back-btn" href="../index.html">Back to gifts</a>
+  </div>
+
+<script>
+const reasons = document.querySelectorAll('.reason');
+reasons.forEach(r=>{
+  r.addEventListener('click', ()=>{
+    const overlay = r.querySelector('.overlay');
+    const content = r.querySelector('.content');
+    overlay.classList.add('hidden');
+    content.style.transition = "opacity 0.5s";
+    content.style.opacity = 1;
+  });
+});
+</script>
+</body>
+</html>
