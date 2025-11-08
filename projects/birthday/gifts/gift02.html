@@ -173,7 +173,7 @@ song.addEventListener('timeupdate', () => {
 });
 
 // Play/Pause
-playBtn.addEventListener('click', ()=>{song.play().catch(()=>{});});
+playBtn.addEventListener('click', ()=>{song.load();  song.play().catch(()=>{});});
 pauseBtn.addEventListener('click', ()=>{song.pause();});
 
 // Seek functionality
