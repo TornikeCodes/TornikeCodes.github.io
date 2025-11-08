@@ -28,38 +28,27 @@ body {
 
 .container {
   position:relative;
-  width:700px;
-  height:700px;
-  background:rgba(255,255,255,0.85);
-  border-radius:25px;
-  box-shadow:0 15px 40px rgba(0,0,0,0.12);
   display:flex;
   justify-content:center;
   align-items:center;
-  overflow:hidden;
 }
 
 .puzzle-box {
   position:relative;
-  width:400px;
-  height:200px;
   background:#f9f0f0;
   display:grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(2, 1fr);
-  gap:2px;
-  border-radius:15px;
+  gap:0px;
+  border-radius:10px;
   z-index:1;
 }
 
 .tile {
   position:absolute;
-  width:100px;
-  height:100px;
   cursor:grab;
-  border-radius:10px;
+  border-radius:5px;
   box-shadow:0 5px 15px rgba(0,0,0,0.2);
-  background-size: 400px 200px;
   transition: transform 0.3s ease, left 0.3s ease, top 0.3s ease;
 }
 
@@ -107,7 +96,6 @@ body {
 .confetti-piece {
   position:absolute;
   width:8px; height:8px;
-  background: #ff6b9f;
   opacity:0.8;
   z-index:30;
   animation:fall 2s linear forwards;
@@ -117,7 +105,6 @@ body {
   0% {transform:translateY(0) rotate(0deg);}
   100% {transform:translateY(300px) rotate(720deg); opacity:0;}
 }
-
 </style>
 </head>
 <body>
@@ -128,42 +115,57 @@ body {
 </div>
 
 <script>
-const imageSrc = 'image.jpg'; // replace with your image path
+const imageSrc = 'your-image.jpg'; // replace with your image
 const puzzleBox = document.getElementById('puzzleBox');
 const container = document.getElementById('container');
 const status = document.getElementById('status');
 
 const ROWS = 2;
 const COLS = 4;
-const TILE_WIDTH = 100;
-const TILE_HEIGHT = 100;
+const TILE_COUNT = ROWS*COLS;
 let tiles = [];
 
-function createTiles() {
-  for(let i=0;i<8;i++){
+const img = new Image();
+img.src = imageSrc;
+img.onload = () => {
+  const imgWidth = img.width;
+  const imgHeight = img.height;
+
+  // set puzzle box size to match image
+  puzzleBox.style.width = imgWidth+'px';
+  puzzleBox.style.height = imgHeight+'px';
+  puzzleBox.style.gridTemplateColumns = `repeat(${COLS}, ${imgWidth/COLS}px)`;
+  puzzleBox.style.gridTemplateRows = `repeat(${ROWS}, ${imgHeight/ROWS}px)`;
+
+  const tileWidth = imgWidth / COLS;
+  const tileHeight = imgHeight / ROWS;
+
+  // create tiles
+  for(let i=0;i<TILE_COUNT;i++){
     const tile = document.createElement('div');
     tile.classList.add('tile');
+    tile.style.width = tileWidth+'px';
+    tile.style.height = tileHeight+'px';
     tile.style.backgroundImage = `url(${imageSrc})`;
-
+    
     const row = Math.floor(i / COLS);
     const col = i % COLS;
-    tile.dataset.correctX = col*TILE_WIDTH;
-    tile.dataset.correctY = row*TILE_HEIGHT;
+    tile.dataset.correctX = col*tileWidth;
+    tile.dataset.correctY = row*tileHeight;
+    tile.style.backgroundSize = `${imgWidth}px ${imgHeight}px`;
+    tile.style.backgroundPosition = `-${col*tileWidth}px -${row*tileHeight}px`;
 
-    tile.style.backgroundPosition = `-${col*TILE_WIDTH}px -${row*TILE_HEIGHT}px`;
-
-    // random initial position
-    tile.style.left = Math.random()*(window.innerWidth-TILE_WIDTH)+'px';
-    tile.style.top = Math.random()*(window.innerHeight-TILE_HEIGHT)+'px';
+    // random position on the screen
+    tile.style.left = Math.random()*(window.innerWidth - tileWidth) + 'px';
+    tile.style.top = Math.random()*(window.innerHeight - tileHeight) + 'px';
 
     container.appendChild(tile);
     tiles.push(tile);
-
-    makeDraggable(tile);
+    makeDraggable(tile, tileWidth, tileHeight, imgWidth, imgHeight);
   }
-}
+};
 
-function makeDraggable(tile){
+function makeDraggable(tile, tileW, tileH, imgW, imgH){
   let offsetX, offsetY, isDragging=false;
 
   tile.addEventListener('mousedown', e=>{
@@ -185,18 +187,17 @@ function makeDraggable(tile){
     tile.classList.remove('dragging');
 
     const rect = puzzleBox.getBoundingClientRect();
-    const tileX = e.clientX - rect.left;
-    const tileY = e.clientY - rect.top;
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
 
-    if(tileX > 0 && tileX < rect.width && tileY > 0 && tileY < rect.height){
-      const snapX = Math.floor(tileX / TILE_WIDTH) * TILE_WIDTH;
-      const snapY = Math.floor(tileY / TILE_HEIGHT) * TILE_HEIGHT;
+    if(mouseX > rect.left && mouseX < rect.right && mouseY > rect.top && mouseY < rect.bottom){
+      const snapX = Math.floor((mouseX - rect.left) / tileW) * tileW;
+      const snapY = Math.floor((mouseY - rect.top) / tileH) * tileH;
 
       tile.style.left = rect.left + snapX + 'px';
       tile.style.top = rect.top + snapY + 'px';
 
-      // Heart effect
-      spawnHeart(e.clientX, e.clientY);
+      spawnHeart(mouseX, mouseY);
     }
 
     checkCompletion();
@@ -217,7 +218,7 @@ function spawnConfetti(){
   for(let i=0;i<40;i++){
     const c = document.createElement('div');
     c.classList.add('confetti-piece');
-    c.style.left = Math.random()*container.clientWidth + 'px';
+    c.style.left = Math.random()*window.innerWidth + 'px';
     c.style.background = `hsl(${Math.random()*360},70%,70%)`;
     container.appendChild(c);
     setTimeout(()=>c.remove(),2000);
@@ -242,8 +243,6 @@ function checkCompletion(){
     status.innerText = 'Arrange all tiles to complete the puzzle';
   }
 }
-
-createTiles();
 </script>
 </body>
 </html>
