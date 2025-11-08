@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gift 4 - Puzzle</title>
+<title>Gift 4 - Photo Reveal</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body {
+body, html {
   margin:0;
-  height:100vh;
+  padding:0;
+  height:100%;
   font-family:'Poppins', sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
   background: linear-gradient(270deg, #ffdde1, #ee9ca7, #ffe7e7, #ffc3a0);
   background-size: 800% 800%;
   animation: gradientBG 30s ease infinite;
   overflow:hidden;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  color:#4b2330;
 }
 
 @keyframes gradientBG {
@@ -28,63 +28,53 @@ body {
 
 .container {
   position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+  width:400px;
+  max-width:90vw;
+  height:600px;
+  max-height:90vh;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,0.2);
 }
 
-.puzzle-box {
-  position:relative;
-  background:#f9f0f0;
-  display:grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap:0px;
-  border-radius:10px;
-  z-index:1;
-}
-
-.tile {
+#caption {
   position:absolute;
-  cursor:grab;
-  border-radius:5px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.2);
-  transition: transform 0.3s ease, left 0.3s ease, top 0.3s ease;
-}
-
-.tile.dragging {
-  z-index:10;
-  opacity:0.9;
-}
-
-.status {
-  position:absolute;
-  bottom:10px;
-  font-size:1.1rem;
+  top:10px;
   width:100%;
   text-align:center;
   font-weight:600;
+  color:#4b2330;
+  font-size:1.2rem;
+  z-index:3;
+  text-shadow: 1px 1px 4px rgba(255,255,255,0.8);
 }
 
-.back-btn {
+#scratchCanvas {
   position:absolute;
-  bottom:40px;
-  padding:10px 20px;
-  background:#4b2330;
-  color:white;
-  border:none;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:2;
+  cursor:crosshair;
 }
 
-/* Heart particle effect */
+#hiddenImage {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:1;
+}
+
 .heart {
   position:absolute;
   font-size:16px;
   animation:floatUp 1s ease forwards;
   pointer-events:none;
-  z-index:20;
+  z-index:4;
 }
 
 @keyframes floatUp {
@@ -92,116 +82,68 @@ body {
   100% {transform:scale(1.5) translateY(-50px); opacity:0;}
 }
 
-/* Confetti */
-.confetti-piece {
+.back-btn {
   position:absolute;
-  width:8px; height:8px;
-  opacity:0.8;
-  z-index:30;
-  animation:fall 2s linear forwards;
-}
-
-@keyframes fall {
-  0% {transform:translateY(0) rotate(0deg);}
-  100% {transform:translateY(300px) rotate(720deg); opacity:0;}
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:8px 18px;
+  background:#4b2330;
+  color:white;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  z-index:5;
 }
 </style>
 </head>
 <body>
-<div class="container" id="container">
-  <div class="puzzle-box" id="puzzleBox"></div>
-  <div class="status" id="status">Arrange all tiles to complete the puzzle</div>
+<div class="container">
+  <div id="caption">As your fourth gift, scratch to reveal a special memory 💖</div>
+  <img id="hiddenImage" src="image.jpg" alt="Special photo"> <!-- replace with your photo -->
+  <canvas id="scratchCanvas"></canvas>
   <button class="back-btn" onclick="window.location.href='../index.html'">Back to gifts</button>
 </div>
 
 <script>
-const imageSrc = 'image.jpg'; // replace with your image
-const puzzleBox = document.getElementById('puzzleBox');
-const container = document.getElementById('container');
-const status = document.getElementById('status');
+const canvas = document.getElementById('scratchCanvas');
+const ctx = canvas.getContext('2d');
+const container = document.querySelector('.container');
+canvas.width = container.clientWidth;
+canvas.height = container.clientHeight;
 
-const ROWS = 2;
-const COLS = 4;
-const TILE_COUNT = ROWS*COLS;
-let tiles = [];
+// fill scratch layer
+ctx.fillStyle = '#b0b0b0';
+ctx.fillRect(0,0,canvas.width,canvas.height);
 
-const img = new Image();
-img.src = imageSrc;
-img.onload = () => {
-  const imgWidth = img.width;
-  const imgHeight = img.height;
+let isDrawing = false;
 
-  // set puzzle box size to match image
-  puzzleBox.style.width = imgWidth+'px';
-  puzzleBox.style.height = imgHeight+'px';
-  puzzleBox.style.gridTemplateColumns = `repeat(${COLS}, ${imgWidth/COLS}px)`;
-  puzzleBox.style.gridTemplateRows = `repeat(${ROWS}, ${imgHeight/ROWS}px)`;
+function getMousePos(e){
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
+}
 
-  const tileWidth = imgWidth / COLS;
-  const tileHeight = imgHeight / ROWS;
+canvas.addEventListener('mousedown', e=>{isDrawing=true; scratch(e);});
+canvas.addEventListener('mousemove', e=>{if(isDrawing)scratch(e);});
+canvas.addEventListener('mouseup', e=>{isDrawing=false;});
+canvas.addEventListener('mouseleave', e=>{isDrawing=false;});
 
-  // create tiles
-  for(let i=0;i<TILE_COUNT;i++){
-    const tile = document.createElement('div');
-    tile.classList.add('tile');
-    tile.style.width = tileWidth+'px';
-    tile.style.height = tileHeight+'px';
-    tile.style.backgroundImage = `url(${imageSrc})`;
-    
-    const row = Math.floor(i / COLS);
-    const col = i % COLS;
-    tile.dataset.correctX = col*tileWidth;
-    tile.dataset.correctY = row*tileHeight;
-    tile.style.backgroundSize = `${imgWidth}px ${imgHeight}px`;
-    tile.style.backgroundPosition = `-${col*tileWidth}px -${row*tileHeight}px`;
+canvas.addEventListener('touchstart', e=>{isDrawing=true; scratch(e.touches[0]);});
+canvas.addEventListener('touchmove', e=>{if(isDrawing)scratch(e.touches[0]);});
+canvas.addEventListener('touchend', e=>{isDrawing=false;});
 
-    // random position on the screen
-    tile.style.left = Math.random()*(window.innerWidth - tileWidth) + 'px';
-    tile.style.top = Math.random()*(window.innerHeight - tileHeight) + 'px';
-
-    container.appendChild(tile);
-    tiles.push(tile);
-    makeDraggable(tile, tileWidth, tileHeight, imgWidth, imgHeight);
-  }
-};
-
-function makeDraggable(tile, tileW, tileH, imgW, imgH){
-  let offsetX, offsetY, isDragging=false;
-
-  tile.addEventListener('mousedown', e=>{
-    isDragging=true;
-    tile.classList.add('dragging');
-    offsetX = e.clientX - tile.offsetLeft;
-    offsetY = e.clientY - tile.offsetTop;
-  });
-
-  window.addEventListener('mousemove', e=>{
-    if(!isDragging) return;
-    tile.style.left = (e.clientX - offsetX) + 'px';
-    tile.style.top = (e.clientY - offsetY) + 'px';
-  });
-
-  window.addEventListener('mouseup', e=>{
-    if(!isDragging) return;
-    isDragging=false;
-    tile.classList.remove('dragging');
-
-    const rect = puzzleBox.getBoundingClientRect();
-    const mouseX = e.clientX;
-    const mouseY = e.clientY;
-
-    if(mouseX > rect.left && mouseX < rect.right && mouseY > rect.top && mouseY < rect.bottom){
-      const snapX = Math.floor((mouseX - rect.left) / tileW) * tileW;
-      const snapY = Math.floor((mouseY - rect.top) / tileH) * tileH;
-
-      tile.style.left = rect.left + snapX + 'px';
-      tile.style.top = rect.top + snapY + 'px';
-
-      spawnHeart(mouseX, mouseY);
-    }
-
-    checkCompletion();
-  });
+function scratch(e){
+  const pos = getMousePos(e);
+  const radius = 25;
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.beginPath();
+  ctx.arc(pos.x,pos.y,radius,0,Math.PI*2);
+  ctx.fill();
+  spawnHeart(pos.x,pos.y);
 }
 
 function spawnHeart(x,y){
@@ -212,36 +154,6 @@ function spawnHeart(x,y){
   heart.innerText='💖';
   document.body.appendChild(heart);
   setTimeout(()=>heart.remove(),1000);
-}
-
-function spawnConfetti(){
-  for(let i=0;i<40;i++){
-    const c = document.createElement('div');
-    c.classList.add('confetti-piece');
-    c.style.left = Math.random()*window.innerWidth + 'px';
-    c.style.background = `hsl(${Math.random()*360},70%,70%)`;
-    container.appendChild(c);
-    setTimeout(()=>c.remove(),2000);
-  }
-}
-
-function checkCompletion(){
-  let correct = true;
-  const rect = puzzleBox.getBoundingClientRect();
-  tiles.forEach(tile=>{
-    const x = parseInt(tile.style.left) - rect.left;
-    const y = parseInt(tile.style.top) - rect.top;
-    if(Math.abs(x - tile.dataset.correctX) > 5 || Math.abs(y - tile.dataset.correctY) >5){
-      correct=false;
-    }
-  });
-
-  if(correct){
-    status.innerHTML = '🎉 Puzzle completed! <a id="downloadLink" href="'+imageSrc+'" download>Click here to download 💖</a>';
-    spawnConfetti();
-  } else {
-    status.innerText = 'Arrange all tiles to complete the puzzle';
-  }
 }
 </script>
 </body>
