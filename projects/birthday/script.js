@@ -26,12 +26,7 @@
 
   forceMusicBtn.addEventListener('click', () => {
       bgMusic.load();  // ensure the file is loaded
-      bgMusic.play().then(() => {
-          alert('Music started!');
-      }).catch(err => {
-          console.error('Music play failed:', err);
-          alert('Music could not start. Check browser restrictions and file path.');
-      });
+      bgMusic.play();
   });
 
   
@@ -43,7 +38,6 @@
 
   forceMusicBtn.addEventListener('click', () => {
     tryPlayMusic();
-    alert('Background music forced to play!');
   });
 
   // test gift button
