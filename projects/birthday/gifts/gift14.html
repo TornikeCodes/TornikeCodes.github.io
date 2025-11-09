@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Our Story — The Movie</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07050a;
+    --accent:#ff7bb0;
+    --accent-2:#ffb6d9;
+    --text:#f7eef6;
+    --muted: rgba(247,238,246,0.25);
+  }
+
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#06030a 0%, #0b0810 60%);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  .stage{
+    width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;
+  }
+
+  .player {
+    width: min(1000px, 96%);
+    max-width:1100px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:18px;
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 20px 60px rgba(10,6,12,0.7);
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* header bar */
+  .player-header {
+    display:flex;align-items:center;gap:12px;padding:18px 22px;background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+    border-bottom:1px solid rgba(255,255,255,0.03);
+  }
+  .logo {
+    width:42px;height:42px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;color:#111;font-weight:700;font-family: 'Playfair Display', serif;
+    box-shadow:0 6px 18px rgba(255,123,176,0.14);
+  }
+  .title { color:var(--text); font-weight:600; font-size:16px; }
+  .subtitle { color:var(--muted); font-size:13px; margin-left:6px; }
+
+  .controls {
+    margin-left:auto; display:flex; gap:10px; align-items:center;
+  }
+  .btn {
+    background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;
+  }
+  .btn.primary { background: linear-gradient(90deg,var(--accent),var(--accent-2)); color:#14040b; border: none; box-shadow: 0 6px 18px rgba(255,123,176,0.18); }
+
+  /* movie area */
+  .movie {
+    position:relative;height:640px; background:
+      radial-gradient(ellipse at center, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0) 40%),
+      linear-gradient(180deg,#05030a 0%, #0b0810 100%);
+    display:flex;align-items:center;justify-content:center;padding:40px;box-sizing:border-box;
+  }
+  .movie {
+      position: relative;
+      overflow: hidden; /* keeps centered transitions contained */
+    }
+
+
+  .scene {
+    width:100%; max-width:880px; min-height:220px; color:var(--text);
+    text-align:center; display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;
+    opacity:0; transform: translateY(16px) scale(0.995); transition: opacity 900ms ease, transform 900ms cubic-bezier(.2,.9,.25,1);
+    pointer-events:none;
+  }
+  .scene.visible { opacity:1; transform: translateY(0) scale(1); pointer-events:auto; }
+
+  .scene h2 { font-family: 'Playfair Display', serif; font-weight:700; margin:0; font-size:34px; color:var(--accent-2); text-shadow:0 6px 30px rgba(0,0,0,0.6); }
+  .scene p { margin:14px 0 0; font-size:20px; color: #f1e9ef; max-width:780px; line-height:1.6; }
+
+  /* play button overlay */
+  .overlay {
+    position:absolute; inset:0; display:flex;align-items:center;justify-content:center; background:linear-gradient(180deg, rgba(7,5,10,0.45), rgba(7,5,10,0.6));
+    z-index:6; transition: opacity .4s ease;
+  }
+  .overlay.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+  .playWrap { text-align:center; color:var(--text); }
+  .playTitle { font-size:28px; font-weight:700; margin-bottom:8px; color:var(--accent-2); font-family:'Playfair Display', serif; }
+  .playSub { color:var(--muted); margin-bottom:18px; }
+  .playBtn { display:inline-flex; align-items:center; gap:10px; padding:16px 28px; border-radius:999px; font-weight:700; font-size:16px; cursor:pointer; border:none; background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#2a0a17; box-shadow: 0 10px 30px rgba(255,123,176,0.18); }
+
+  /* credits */
+  .credits {
+    position:absolute; bottom:0; left:0; right:0; height:0; overflow:hidden; background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.5));
+    display:flex; align-items:flex-end; justify-content:center; padding:20px; box-sizing:border-box;
+  }
+  .creditsInner {
+  color: var(--accent-2) !important; /* pink highlight */
+  font-weight:700;
+  font-family:'Playfair Display', serif;
+  font-size:20px;
+  text-align:center;
+  opacity:0;
+  transform: translateY(30px);
+}
+      /* slower credits roll: 20s instead of 10s */
+    .creditsInner.roll {
+      animation: rollUp 20s linear forwards;
+    }
+    @keyframes rollUp {
+      0% { opacity:0; transform: translateY(30px); }
+      10% { opacity:1; transform: translateY(0); }
+      100% { opacity:1; transform: translateY(-220px); }
+    }
+
+
+  /* make confetti span the full .movie container without being affected by scene transform */
+canvas.confetti {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10; /* above scenes but below credits */
+}
+
+
+  /* footer small text */
+  .footer {
+    padding:12px 22px; display:flex; align-items:center; justify-content:space-between; gap:12px; color:var(--muted);
+    font-size:13px;border-top:1px solid rgba(255,255,255,0.02);
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  }
+
+  .mute {
+    display:inline-flex; gap:8px; align-items:center;
+  }
+
+  /* small responsive */
+  @media (max-width:760px){
+    .player { border-radius:14px; }
+    .movie { padding:20px; height:520px; }
+    .scene h2 { font-size:24px; }
+    .scene p { font-size:16px; }
+    .playTitle { font-size:22px; }
+  }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="player" role="main" aria-label="Our Story movie player">
+      <div class="player-header">
+        <div class="logo">US</div>
+        <div>
+          <div class="title">Our Story — The Movie</div>
+          <div class="subtitle">A midnight celebration • Happy Birthday</div>
+        </div>
+
+        <div class="controls">
+          <button id="muteBtn" class="btn" aria-pressed="false">🔊</button>
+          <button id="playSkip" class="btn" title="Skip to end">Skip</button>
+        </div>
+      </div>
+
+      <div class="movie">
+        <!-- scenes -->
+        <section id="scenesRoot" aria-live="polite">
+          <!-- scenes created by JS -->
+        </section>
+
+        <!-- overlay with play -->
+        <div id="overlay" class="overlay">
+          <div class="playWrap">
+            <div class="playTitle">A Short Film — For You</div>
+            <div class="playSub">Press play and let the story begin.</div>
+            <button id="playBtn" class="playBtn" aria-label="Play movie">▶ Play Movie</button>
+          </div>
+        </div>
+
+        <canvas id="confetti" class="confetti"></canvas>
+        <div class="credits" id="credits"><div class="creditsInner" id="creditsInner"></div></div>
+      </div>
+
+      <div class="footer">
+        <div class="mute">Music: <small id="musicLabel">Soft Piano (replaceable)</small></div>
+        <div style="opacity:.9">Directed by <strong>TrueDivineX</strong></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* -------------------------
+   CONFIG: scenes + music
+   ------------------------- */
+const SCENES = [
+  { title: "It all began on a quiet night in Roblox…", text: "A random encounter that didn’t feel random at all." },
+  { title: "A single message", text: "A tiny 'Haii' appeared — and everything gently shifted." },
+  { title: "We kept talking", text: "We laughed at glitches, shared late-night thoughts, and built a world of our own." },
+  { title: "From pixels to feelings", text: "Every little moment added up until I realized you were more than a friend." },
+  { title: "Distance meant nothing", text: "Our calls, our jokes, our small rituals turned screens into closeness." },
+  { title: "You became my comfort", text: "Your laugh, your messages, the way you checked in — you’re my favorite part of every day." },
+  { title: "All the small promises", text: "We dreamed about trips, pets, and quiet mornings — and I wanted it all with you." },
+  { title: "Tonight", text: "On your birthday, I wanted to give you something that feels like a movie — because you deserve more than words." },
+  { title: "Happy Birthday", text: "You are my heart, my home, my forever. Happy Birthday, my Queen." }
+];
+
+const MUSIC_URL = 'music.mp3'; // <- replace with your music path
+
+/* -------------------------
+   UI + flow
+   ------------------------- */
+const playBtn = document.getElementById('playBtn');
+const overlay = document.getElementById('overlay');
+const scenesRoot = document.getElementById('scenesRoot');
+const creditsInner = document.getElementById('creditsInner');
+const muteBtn = document.getElementById('muteBtn');
+const playSkip = document.getElementById('playSkip');
+const confettiCanvas = document.getElementById('confetti');
+
+let audio = new Audio(MUSIC_URL);
+audio.loop = true;
+audio.volume = 0.28;
+let isMuted = false;
+
+/* create scene DOM nodes (hidden initially) */
+const sceneEls = SCENES.map((s, i) => {
+  const el = document.createElement('article');
+  el.className = 'scene';
+  el.id = 'scene-' + i;
+  el.innerHTML = `<h2>${escapeHtml(s.title)}</h2><p>${escapeHtml(s.text)}</p>`;
+  scenesRoot.appendChild(el);
+  return el;
+});
+
+/* credits text */
+const creditsText = `
+  Directed by TrueDivineX<br>
+  Starring: Queen ❤️<br>
+  Produced by: Love<br><br>
+  Thank you for being my favorite story.
+`;
+
+/* play sequence */
+playBtn.addEventListener('click', async () => {
+  // user gesture — play audio reliably
+  try {
+    await audio.play();
+  } catch (err) {
+    console.warn('Audio play failed:', err);
+  }
+  overlay.classList.add('hidden');
+  runSequence();
+});
+
+/* mute / unmute */
+muteBtn.addEventListener('click', () => {
+  isMuted = !isMuted;
+  audio.muted = isMuted;
+  muteBtn.textContent = isMuted ? '🔇' : '🔊';
+  muteBtn.setAttribute('aria-pressed', String(isMuted));
+});
+
+/* skip button jumps to final */
+playSkip.addEventListener('click', () => {
+  // stop ongoing, show final scene then credits
+  stopAllTimers();
+  showAllScenesQuick().then(()=>endWithCredits(true));
+});
+
+/* sequence runner with fixed centering */
+let timers = [];
+
+function runSequence() {
+  let idx = 0;
+
+  const showNext = () => {
+    // Hide previous scene (so only one is visible)
+    if (idx > 0) sceneEls[idx - 1].classList.remove('visible');
+
+    if (idx < sceneEls.length) {
+      // Show current scene
+      const el = sceneEls[idx];
+      el.classList.add('visible');
+
+      // Force center the scene vertically inside .movie
+      centerScene(el);
+
+      idx++;
+
+      // Scene timing: early ones slower, later ones faster
+      const base = 2600;
+      const variance = Math.max(800, base - idx * 220);
+      timers.push(setTimeout(showNext, variance));
+    } else {
+      endWithCredits();
+    }
+  };
+
+  showNext();
+}
+
+/* helper: center a scene perfectly in the movie area */
+function centerScene(el) {
+  const movie = document.querySelector('.movie');
+  const rect = movie.getBoundingClientRect();
+  const elRect = el.getBoundingClientRect();
+  const offsetY = rect.top + rect.height / 2 - (elRect.top + elRect.height / 2);
+
+  // translate the container vertically so the scene stays centered
+  el.style.transform = `translateY(${offsetY}px) scale(1)`;
+  el.style.transition = 'opacity 900ms ease, transform 900ms cubic-bezier(.2,.9,.25,1)';
+}
+
+
+
+/* show all scenes quickly when skipping */
+function showAllScenesQuick(){
+  return new Promise(resolve=>{
+    sceneEls.forEach((el)=>{ el.classList.add('visible'); });
+    setTimeout(()=>resolve(), 900);
+  });
+}
+
+/* cleanup timers */
+function stopAllTimers(){
+  timers.forEach(t => clearTimeout(t));
+  timers = [];
+}
+
+function endWithCredits(skip=false){
+  // small delay to allow last scene fade-in
+  setTimeout(() => {
+    creditsInner.innerHTML = creditsText;
+    creditsInner.classList.add('roll');
+
+    // launch confetti
+    launchConfettiBurst(160);
+
+    // show "The End" immediately, no wait
+    showTheEnd();
+  }, skip ? 400 : 700);
+}
+
+
+function showTheEnd(){
+  const endEl = document.createElement('div');
+  endEl.textContent = '✨ The End ✨';
+  Object.assign(endEl.style, {
+    position: 'absolute',
+    left: '50%',
+    top: '50%', // center vertically
+    transform: 'translate(-50%, -50%)',
+    fontFamily: "'Playfair Display', serif",
+    color: '#ffb6d9', // match your accent color
+    fontSize: '48px',
+    fontWeight: '700',
+    textShadow: '0 6px 30px rgba(0,0,0,0.6)',
+    zIndex: 20, // above confetti & scenes
+    opacity: '0',
+    transition: 'opacity 1200ms ease'
+  });
+  document.querySelector('.movie').appendChild(endEl);
+
+  // fade in
+  requestAnimationFrame(() => { endEl.style.opacity = '1'; });
+}
+
+
+/* basic confetti engine (canvas) */
+const ctx = confettiCanvas.getContext && confettiCanvas.getContext('2d');
+let confettiActive=false, confettiParticles=[];
+function resizeCanvas(){
+  confettiCanvas.width = confettiCanvas.clientWidth = confettiCanvas.offsetWidth;
+  confettiCanvas.height = confettiCanvas.clientHeight = confettiCanvas.offsetHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function launchConfettiBurst(count=100){
+  if(!ctx) return;
+  confettiActive = true;
+  confettiParticles = [];
+  for(let i=0;i<count;i++){
+    confettiParticles.push({
+      x: Math.random()*confettiCanvas.width,
+      y: Math.random()*confettiCanvas.height*0.5 + confettiCanvas.height*0.25,
+      vx: (Math.random()-0.5)*8,
+      vy: - (Math.random()*8 + 6),
+      size: 6 + Math.random()*12,
+      color: ['#ff7bb0','#ffb6d9','#ffd1e8','#fff9f9'][Math.floor(Math.random()*4)],
+      rot: Math.random()*360,
+      drot: (Math.random()-0.5)*8
+    });
+  }
+  requestAnimationFrame(confettiLoop);
+}
+
+function confettiLoop(){
+  if(!confettiActive) return;
+  ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  for(let p of confettiParticles){
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.35; // gravity
+    p.rot += p.drot;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot * Math.PI/180);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+    ctx.restore();
+  }
+  // remove particles that fall off
+  confettiParticles = confettiParticles.filter(p => p.y < confettiCanvas.height + 50);
+  if(confettiParticles.length){
+    requestAnimationFrame(confettiLoop);
+  } else {
+    confettiActive = false;
+    ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+  }
+}
+
+/* helper to launch small bursts (used in credits) */
+function launchConfettiSmall(){
+  launchConfettiBurst(40);
+}
+
+/* simple HTML escape */
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* in case audio isn't available, graceful message */
+audio.addEventListener('error', (e) => {
+  console.warn('Audio error', e);
+  const lbl = document.getElementById('musicLabel');
+  lbl.textContent = 'Music file missing — replace MUSIC_URL in code';
+});
+
+/* autoplay/fallback note: if audio cannot start due to browser, the user gesture on playBtn should allow it.
+   If you want a force-play control, uncomment this small helper. */
+
+(function init(){
+  // small accessibility: let Enter or Space on Play trigger
+  playBtn.addEventListener('keyup', (ev) => { if(ev.key === 'Enter' || ev.key === ' ') playBtn.click(); });
+
+  // click movie area to advance (while playing) — optional: skip to next scene
+  document.addEventListener('keydown', (ev)=>{
+    if(ev.key === 'ArrowRight') {
+      // jump to next quickly
+      const visibleIndex = sceneEls.findIndex(el => el.classList.contains('visible'));
+      if(visibleIndex >=0 && visibleIndex < sceneEls.length - 1) {
+        stopAllTimers();
+        // show current+1
+        sceneEls[visibleIndex].classList.remove('visible');
+        sceneEls[visibleIndex+1].classList.add('visible');
+      }
+    }
+  });
+})();
+
+
+</script>
+</body>
+</html>
