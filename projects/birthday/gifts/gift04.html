@@ -35,18 +35,39 @@ body, html {
   border-radius:20px;
   overflow:hidden;
   box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  background:#f9f0f0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 
-#caption {
-  position:absolute;
-  top:10px;
+.caption-container {
   width:100%;
+  padding:15px;
+  background: rgba(255,255,255,0.85);
   text-align:center;
   font-weight:600;
   color:#4b2330;
-  font-size:1.2rem;
+  font-size:1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   z-index:3;
-  text-shadow: 1px 1px 4px rgba(255,255,255,0.8);
+}
+
+.scratch-container {
+  position:relative;
+  flex:1;
+  width:100%;
+}
+
+#hiddenImage {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:0 0 20px 20px;
+  z-index:1;
 }
 
 #scratchCanvas {
@@ -57,16 +78,6 @@ body, html {
   height:100%;
   z-index:2;
   cursor:crosshair;
-}
-
-#hiddenImage {
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  z-index:1;
 }
 
 .heart {
@@ -83,10 +94,7 @@ body, html {
 }
 
 .back-btn {
-  position:absolute;
-  bottom:10px;
-  left:50%;
-  transform:translateX(-50%);
+  margin:5px;
   padding:8px 18px;
   background:#4b2330;
   color:white;
@@ -96,28 +104,51 @@ body, html {
   cursor:pointer;
   z-index:5;
 }
+
+#downloadBtn {
+  margin:5px;
+  padding:8px 18px;
+  background:#ff6384;
+  color:white;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  display:none;
+  z-index:5;
+}
 </style>
 </head>
 <body>
 <div class="container">
-  <div id="caption">As your fourth gift, scratch to reveal a special memory 💖</div>
-  <img id="hiddenImage" src="image.jpg" alt="Special photo"> <!-- replace with your photo -->
-  <canvas id="scratchCanvas"></canvas>
+  <div class="caption-container">
+    As your fourth gift, scratch to reveal a special memory 💖<br>
+    (You can download it after revealing 90%)
+  </div>
+  <div class="scratch-container">
+    <img id="hiddenImage" src="image.jpg" alt="Special photo"> <!-- replace with your photo -->
+    <canvas id="scratchCanvas"></canvas>
+  </div>
+  <button id="downloadBtn">Download Image 💖</button>
   <button class="back-btn" onclick="window.location.href='../index.html'">Back to gifts</button>
 </div>
 
 <script>
 const canvas = document.getElementById('scratchCanvas');
 const ctx = canvas.getContext('2d');
-const container = document.querySelector('.container');
-canvas.width = container.clientWidth;
-canvas.height = container.clientHeight;
+const scratchContainer = document.querySelector('.scratch-container');
+const downloadBtn = document.getElementById('downloadBtn');
+const hiddenImage = document.getElementById('hiddenImage');
+
+canvas.width = scratchContainer.clientWidth;
+canvas.height = scratchContainer.clientHeight;
 
 // fill scratch layer
 ctx.fillStyle = '#b0b0b0';
 ctx.fillRect(0,0,canvas.width,canvas.height);
 
 let isDrawing = false;
+let downloadShown = false;
 
 function getMousePos(e){
   const rect = canvas.getBoundingClientRect();
@@ -129,12 +160,12 @@ function getMousePos(e){
 
 canvas.addEventListener('mousedown', e=>{isDrawing=true; scratch(e);});
 canvas.addEventListener('mousemove', e=>{if(isDrawing)scratch(e);});
-canvas.addEventListener('mouseup', e=>{isDrawing=false;});
-canvas.addEventListener('mouseleave', e=>{isDrawing=false;});
+canvas.addEventListener('mouseup', e=>{isDrawing=false; checkReveal();});
+canvas.addEventListener('mouseleave', e=>{isDrawing=false; checkReveal();});
 
 canvas.addEventListener('touchstart', e=>{isDrawing=true; scratch(e.touches[0]);});
 canvas.addEventListener('touchmove', e=>{if(isDrawing)scratch(e.touches[0]);});
-canvas.addEventListener('touchend', e=>{isDrawing=false;});
+canvas.addEventListener('touchend', e=>{isDrawing=false; checkReveal();});
 
 function scratch(e){
   const pos = getMousePos(e);
@@ -154,6 +185,27 @@ function spawnHeart(x,y){
   heart.innerText='💖';
   document.body.appendChild(heart);
   setTimeout(()=>heart.remove(),1000);
+}
+
+function checkReveal(){
+  if(downloadShown) return;
+  const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const pixels = imageData.data;
+  let transparentCount = 0;
+  for(let i=3;i<pixels.length;i+=4){
+    if(pixels[i] === 0) transparentCount++;
+  }
+  const percent = transparentCount / (canvas.width*canvas.height);
+  if(percent >= 0.9){
+    downloadShown = true;
+    downloadBtn.style.display = 'block';
+    downloadBtn.onclick = ()=>{
+      const link = document.createElement('a');
+      link.href = hiddenImage.src;
+      link.download = 'special-photo.jpg';
+      link.click();
+    };
+  }
 }
 </script>
 </body>
