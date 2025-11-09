@@ -54,6 +54,20 @@
     z-index:2000;
   }
 
+  .back-btn {
+    display:inline-block;
+    margin-top:20px;
+    padding:12px 24px;
+    background:#ff6b9f;
+    color:white;
+    font-weight:600;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    text-decoration:none;
+    transition:transform .2s;
+  }
+
   @keyframes glowHeart {
     0% {text-shadow:0 0 10px #ffb6c1, 0 0 20px #ffb6c1;}
     100% {text-shadow:0 0 20px #ff69b4, 0 0 40px #ff69b4;}
@@ -62,7 +76,8 @@
 </head>
 <body>
 
-<div id="finalMessage">💖 You’ve found every little piece of my heart 💖</div>
+<div id="finalMessage">💖 You’ve found every little piece of my heart 💖 <br><button onclick="window.location.replace('https://tornikecodes.github.io/projects/birthday/')" class="back-btn">Go back</button></div>
+
 <div id="overlay"></div>
 
 <script>
