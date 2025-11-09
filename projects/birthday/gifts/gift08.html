@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift 8 — Terminal Love Overflow</title>
+<style>
+html, body {
+  margin:0; padding:0;
+  width:100%; height:100%;
+  background:#000;
+  font-family: 'Courier New', monospace;
+  color:#00ff00;
+  overflow:hidden;
+}
+
+#terminal {
+  padding:20px;
+  width:100%; height:100%;
+  box-sizing:border-box;
+  position:relative;
+  white-space:pre-wrap;
+  overflow-y:auto;
+}
+
+#videoContainer {
+  position:absolute;
+  top:10px; right:10px;
+  width:200px; height:120px;
+  overflow:hidden;
+  border:2px solid #00ff00;
+  border-radius:8px;
+  z-index:1000;
+}
+
+#videoContainer video {
+  width:100%; height:100%;
+  object-fit:cover;
+}
+
+.cursor {
+  display:inline-block;
+  width:8px; height:20px;
+  background:#00ff00;
+  margin-left:2px;
+  animation:blink 1s steps(2) infinite;
+  vertical-align:bottom;
+}
+
+@keyframes blink {
+  0%,50% {opacity:1;}
+  51%,100% {opacity:0;}
+}
+
+.floatingHeart {
+  position:absolute;
+  color:pink;
+  font-weight:bold;
+  font-size:24px;
+  animation:floatUp linear forwards;
+  z-index:2000;
+  pointer-events:none;
+}
+
+@keyframes floatUp {
+  0% {transform:translateY(0); opacity:1;}
+  100% {transform:translateY(-120vh); opacity:0;}
+}
+
+#overflowText {
+  position:absolute;
+  top:50%; left:50%;
+  transform:translate(-50%, -50%);
+  font-size:48px;
+  font-weight:bold;
+  color:#ff69b4;
+  text-shadow:0 0 10px #ff69b4,0 0 20px #ffb6c1,0 0 30px #ff69b4;
+  display:none;
+  z-index:2000;
+  animation:glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  0% {text-shadow:0 0 10px #ff69b4,0 0 20px #ffb6c1;}
+  100% {text-shadow:0 0 20px #ff69b4,0 0 40px #ff69b4;}
+}
+</style>
+</head>
+<body>
+
+<div id="terminal"></div>
+<div id="overflowText">LOVE OVERFLOW</div>
+
+<div id="videoContainer">
+  <video autoplay loop muted>
+    <source src="https://media.giphy.com/media/3o6Zt8MgUuvSbkZYWc/giphy.mp4" type="video/mp4">
+  </video>
+</div>
+
+<script>
+const terminal = document.getElementById('terminal');
+const overflowText = document.getElementById('overflowText');
+
+// Code typing
+const codeLines = [
+  "console.log('Accessing emotions...');",
+  "const heart = await accessHeart();",
+  "function processEmotions(input){ return AI.analyze(input); }",
+  "const feelings = processEmotions('you and me');",
+  "console.log('Compiling love data...');",
+  "await heart.unlock('LOVE');",
+  "console.log('Initializing love overflow...');"
+];
+
+// More unique messages
+const loveLines = [];
+for(let i=0;i<100;i++){
+  loveLines.push(`You are my everything ${i}`);
+  loveLines.push(`Thinking of you ${i}`);
+  loveLines.push(`My heart beats for you ${i}`);
+  loveLines.push(`I LOVE YOU ${i}`);
+  loveLines.push(`You complete me ${i}`);
+  loveLines.push(`You make me smile ${i}`);
+  loveLines.push(`Forever yours ${i}`);
+  loveLines.push(`My soul belongs to you ${i}`);
+  loveLines.push(`You are my dream ${i}`);
+  loveLines.push(`Can't stop thinking of you ${i}`);
+}
+
+const overflowMessages = [
+  "LOVE OVERFLOW", "MY HEART IS FULL", "CAN'T CONTAIN MY FEELINGS",
+  "YOU ARE EVERYTHING TO ME", "OVERFLOWING WITH LOVE"
+];
+
+let content = '';
+let cursor = document.createElement('span');
+cursor.className='cursor';
+terminal.appendChild(cursor);
+
+function typeLine(line, speed=20, callback){
+  let i=0;
+  const interval = setInterval(()=>{
+    content += line[i];
+    terminal.textContent = content;
+    terminal.appendChild(cursor);
+    i++;
+    terminal.scrollTop = terminal.scrollHeight;
+    if(i>=line.length){
+      clearInterval(interval);
+      content+='\n';
+      terminal.textContent = content;
+      terminal.appendChild(cursor);
+      if(callback) callback();
+    }
+  }, speed);
+}
+
+function typeCode(lines, index=0){
+  if(index>=lines.length){
+    startLoveOutput();
+    return;
+  }
+  
+  typeLine(lines[index], 20, ()=>typeCode(lines,index+1));
+}
+
+
+// Dynamic recursive typing for acceleration
+let speed = 100;
+let overflowActive = false; // flag to prevent multiple overlaps
+
+function startLoveOutput(){
+  function outputLine(){
+    let line;
+
+    // Only trigger overflow if not active
+    if(!overflowActive && (Math.random() < 0.03 || speed <= 10)){
+      line = overflowMessages[Math.floor(Math.random()*overflowMessages.length)];
+      showOverflow();
+    } else {
+      line = loveLines[Math.floor(Math.random()*loveLines.length)];
+    }
+
+    content += line+'\n';
+    terminal.textContent = content;
+    terminal.appendChild(cursor);
+    terminal.scrollTop = terminal.scrollHeight;
+
+    if(speed > 10) speed -= 0.8; // accelerate
+    setTimeout(outputLine, speed);
+  }
+  outputLine();
+}
+
+function showOverflow(){
+  overflowActive = true; // lock
+
+  overflowText.style.display='block';
+  const heartInterval = setInterval(spawnHeartBurst, 300);
+
+  setTimeout(()=>{
+    clearInterval(heartInterval);
+    overflowText.style.display='none';
+    spawnLoveCard();
+    overflowActive = false; // release lock
+  }, 3000);
+}
+
+
+function spawnHeartBurst(){
+  for(let i=0;i<5;i++){ // more hearts per burst
+    const heart = document.createElement('div');
+    heart.className='floatingHeart';
+    heart.textContent='❤';
+    heart.style.left = Math.random()*(window.innerWidth-24)+'px';
+    heart.style.top = window.innerHeight - 50 + 'px';
+    heart.style.animationDuration = (3 + Math.random()*2)+'s';
+    document.body.appendChild(heart);
+    setTimeout(()=>heart.remove(),5000);
+  }
+}
+
+
+function spawnLoveCard(){
+  const card = document.createElement('div');
+  card.textContent = 'I LOVE YOU ❤️';
+  card.style.position = 'fixed';
+  card.style.left = '-400px'; // start offscreen
+  card.style.top = '50%';
+  card.style.width = '400px';
+  card.style.height = '200px';
+  card.style.background = '#ffb6c1';
+  card.style.border = '4px solid #ff69b4';
+  card.style.borderRadius = '12px';
+  card.style.display = 'flex';
+  card.style.justifyContent = 'center';
+  card.style.alignItems = 'center';
+  card.style.fontSize = '48px';
+  card.style.fontWeight = 'bold';
+  card.style.color = '#fff';
+  card.style.textAlign = 'center';
+  card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.5)';
+  card.style.transform = 'rotate(' + (Math.random()*30-15) + 'deg)';
+  card.style.zIndex = '3000';
+  card.style.transition = 'left 0.5s ease-out, transform 0.5s ease-out';
+  document.body.appendChild(card);
+
+  setTimeout(()=>{
+    card.style.left = '50%';
+    card.style.transform = 'translateX(-50%) rotate(' + (Math.random()*30-15) + 'deg)';
+  }, 50);
+
+  // remove card after 3 seconds
+  setTimeout(()=>{
+    card.style.transition = 'opacity 0.5s';
+    card.style.opacity = '0';
+    setTimeout(()=>card.remove(), 500);
+  }, 3000);
+}
+
+
+
+
+typeCode(codeLines);
+</script>
+</body>
+</html>
