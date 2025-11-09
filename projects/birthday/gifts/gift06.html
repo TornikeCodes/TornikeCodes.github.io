@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift 6 — Our Special Playlist</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin:0; padding:0;
+    height:100%; width:100%;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #ffe6ea, #fff1f3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:auto;
+    color:#4b2330;
+  }
+
+  body::before {
+    content:'';
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:radial-gradient(circle, rgba(255,182,193,0.2), transparent 70%);
+    z-index:0;
+  }
+
+  .container {
+    position:relative;
+    max-width:720px;
+    width:90%;
+    background: rgba(255, 240, 245, 0.85);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 15px 40px rgba(200,150,160,0.15);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    z-index:1;
+    animation: fadeIn 1s ease forwards;
+  }
+
+  @keyframes fadeIn{
+    0% {opacity:0; transform: translateY(20px);}
+    100% {opacity:1; transform: translateY(0);}
+  }
+
+  .caption {
+    font-weight:600;
+    font-size:18px;
+    margin-bottom:16px;
+    text-align:center;
+  }
+
+  iframe {
+    border-radius:18px;
+    border:none;
+    width:100%;
+    max-width:700px;
+    height:380px;
+    box-shadow:0 12px 30px rgba(200,150,160,0.12);
+  }
+
+  .back-btn {
+    display:inline-block;
+    margin-top:20px;
+    padding:12px 24px;
+    background:#ff6b9f;
+    color:white;
+    font-weight:600;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    text-decoration:none;
+    transition:transform .2s;
+  }
+
+  /* subtle floating hearts animation */
+  .heart {
+    position:absolute;
+    font-size:24px;
+    animation: floatUp 6s linear infinite;
+    opacity:0.6;
+    z-index:0;
+  }
+
+  @keyframes floatUp{
+    0% {transform: translateY(0) scale(0.8); opacity:0.6;}
+    50% {opacity:0.9;}
+    100% {transform: translateY(-400px) scale(1.2); opacity:0;}
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="caption">
+      As your sixth gift, enjoy our special playlist 💖<br>
+      I hope it reminds you of us. ❤️
+    </div>
+
+    <!-- Spotify Embed -->
+    <iframe src="https://open.spotify.com/embed/playlist/6nVYnGqKEMng6oZjE7aS6z" allow="encrypted-media" allowtransparency="true"></iframe>
+
+    <a class="back-btn" href="../index.html">Back to gifts</a>
+  </div>
+
+  <!-- floating hearts -->
+  <div class="heart" style="left:10%;">💖</div>
+  <div class="heart" style="left:25%; animation-delay:1s;">💞</div>
+  <div class="heart" style="left:50%; animation-delay:2s;">❤️</div>
+  <div class="heart" style="left:75%; animation-delay:1.5s;">💖</div>
+  <div class="heart" style="left:85%; animation-delay:2.5s;">💞</div>
+
+</body>
+</html>
