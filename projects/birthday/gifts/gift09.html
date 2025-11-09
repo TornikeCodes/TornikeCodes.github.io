@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift 9 — Love Meter Overflow</title>
+<style>
+  html, body {
+    margin:0; padding:0;
+    width:100%; height:100%;
+    background:#111;
+    font-family:'Poppins', sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#fff;
+    overflow:hidden;
+  }
+
+  #containerBox {
+    width:600px;
+    padding:30px;
+    background:#1a1a1a;
+    border:3px solid #ff69b4;
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:relative;
+  }
+
+  .person {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .person img {
+    width:120px; height:120px;
+    border-radius:50%;
+    object-fit:cover;
+    border:3px solid #ff69b4;
+  }
+
+  .person span {
+    margin-top:10px;
+    font-weight:bold;
+    font-size:18px;
+    color:#ffb6c1;
+  }
+
+  #scaleContainer {
+    position:relative;
+    flex:1;
+    margin:0 20px;
+    height:60px;
+    background:#222;
+    border-radius:30px;
+    overflow:hidden;
+    border:3px solid #ff69b4;
+  }
+
+  #scaleFill {
+    position:absolute;
+    top:0; left:0;
+    height:100%;
+    width:0%;
+    background:linear-gradient(to right, #ff69b4, #ffb6c1);
+    border-radius:30px;
+    transition:width 0.1s linear;
+  }
+
+  #percentage {
+    position:absolute;
+    width:100%; text-align:center;
+    top:50%; left:50%;
+    transform:translate(-50%, -50%);
+    font-size:24px;
+    font-weight:bold;
+    color:#fff;
+    pointer-events:none;
+    text-shadow:0 0 5px #ff69b4;
+  }
+
+  #startBtn {
+    position:absolute;
+    bottom:-70px;
+    left:35%;
+    transform:translateX(-50%);
+    padding:12px 24px;
+    font-size:18px;
+    font-weight:bold;
+    background:#ff69b4;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    color:#fff;
+    box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    transition:transform 0.2s;
+  }
+
+  #startBtn:hover {
+    transform:translateX(-50%) scale(1.05);
+  }
+
+  .back-btn {
+    position:absolute;
+    bottom:-70px;
+    left:65%;
+    transform:translateX(-50%);
+    display:inline-block;
+    padding:12px 24px;
+    font-size:18px;
+    background:#ff69b4;
+    color:white;
+    font-weight:600;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    text-decoration:none;
+    box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    transition:transform .2s;
+  }
+
+  .back-btn:hover {
+    transform:translateX(-50%) scale(1.05);
+  }
+
+  .floatingHeart {
+    position:absolute;
+    color:#ff69b4;
+    font-size:24px;
+    font-weight:bold;
+    pointer-events:none;
+    animation:floatUp linear forwards;
+    z-index:10;
+  }
+
+  @keyframes floatUp {
+    0% {transform:translateY(0); opacity:1;}
+    100% {transform:translateY(-120vh); opacity:0;}
+  }
+</style>
+</head>
+<body>
+
+<div id="containerBox">
+  <div class="person">
+    <img src="https://cdn.discordapp.com/avatars/721800684671991828/b88cf2c028a3ce596e6dfa412a6eeeac.png?size=1024" alt="Person Left">
+    <span>TrueDivineX</span>
+  </div>
+
+  <div id="scaleContainer">
+    <div id="scaleFill"></div>
+    <div id="percentage">0%</div>
+  </div>
+
+  <div class="person">
+    <img src="https://cdn.discordapp.com/avatars/1232606934314647593/0a14ade993b368bd9722a113d451ea62.png?size=1024" alt="Person Right">
+    <span>TrueHolyX</span>
+  </div>
+
+  <button id="startBtn">Start Love Meter</button>
+  <button class="back-btn" onclick="goBack()">Go Back</button>
+</div>
+
+<script>
+const scaleFill = document.getElementById('scaleFill');
+const percentageEl = document.getElementById('percentage');
+const startBtn = document.getElementById('startBtn');
+const containerBox = document.getElementById('containerBox');
+
+let percent = 0;
+let targetPercent = Math.floor(Math.random() * 15) + 85; // 85-99%
+let speed = 50;
+
+startBtn.addEventListener('click', () => {
+  startBtn.style.display = 'none';
+  fillScale();
+});
+
+function fillScale() {
+  if (percent < targetPercent) {
+    percent++;
+    scaleFill.style.width = percent + '%';
+    percentageEl.textContent = percent + '%';
+    spawnHearts(3);
+    setTimeout(fillScale, speed);
+  } else {
+    // Start rapid infinite counting
+    startOverflow();
+  }
+}
+
+function spawnHearts(count){
+  for(let i=0;i<count;i++){
+    const heart = document.createElement('div');
+    heart.className='floatingHeart';
+    heart.textContent='❤';
+    const rect = containerBox.getBoundingClientRect();
+    heart.style.left = rect.left + Math.random()*rect.width + 'px';
+    heart.style.top = rect.bottom - 10 + 'px';
+    heart.style.fontSize = (20 + Math.random()*20)+'px';
+    heart.style.animationDuration = (2 + Math.random()*1.5)+'s';
+    document.body.appendChild(heart);
+    setTimeout(()=>heart.remove(), 5000);
+  }
+}
+
+function startOverflow(){
+  let overflowPercent = targetPercent;
+  setInterval(()=>{
+    overflowPercent += Math.floor(Math.random()*10 + 1);
+    scaleFill.style.width = overflowPercent + '%';
+    percentageEl.textContent = overflowPercent + '%';
+    spawnHearts(5);
+  }, 50);
+}
+
+function goBack() {
+  window.location.replace("https://tornikecodes.github.io/projects/birthday/")
+}
+</script>
+
+</body>
+</html>
