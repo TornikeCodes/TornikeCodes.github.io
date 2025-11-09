@@ -6,25 +6,37 @@
 <title>Gift 4 - Photo Reveal</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body, html {
+html, body {
   margin:0;
   padding:0;
-  length:100%;
   height:100%;
   font-family:'Poppins', sans-serif;
+}
+
+body {
   display:flex;
   justify-content:center;
   align-items:center;
-  background: linear-gradient(270deg, #ffdde1, #ee9ca7, #ffe7e7, #ffc3a0);
-  background-size: 800% 800%;
-  animation: gradientBG 30s ease infinite;
-  overflow:hidden;
+  min-height:100vh;
+  position:relative;
 }
 
 @keyframes gradientBG {
   0% {background-position:0% 50%;}
   50% {background-position:100% 50%;}
   100% {background-position:0% 50%;}
+}
+
+/* Full-viewport animated background behind all content to avoid seams/restarts */
+body::before {
+  content: "";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background: linear-gradient(270deg, #ffdde1, #ee9ca7, #ffe7e7, #ffc3a0);
+  background-size: 800% 800%;
+  animation: gradientBG 30s ease infinite;
+  will-change: background-position;
 }
 
 .container {
@@ -82,16 +94,19 @@ body, html {
 }
 
 .heart {
-  position:absolute;
+  position:fixed;
+  left:0;
+  top:0;
   font-size:16px;
+  transform:translate(-50%,-50%);
   animation:floatUp 1s ease forwards;
   pointer-events:none;
-  z-index:4;
+  z-index:9999;
 }
 
 @keyframes floatUp {
-  0% {transform:scale(1) translateY(0); opacity:1;}
-  100% {transform:scale(1.5) translateY(-50px); opacity:0;}
+  0% {transform:translate(-50%,-50%) scale(1) translateY(0); opacity:1;}
+  100% {transform:translate(-50%,-50%) scale(1.5) translateY(-50px); opacity:0;}
 }
 
 .back-btn {
@@ -141,12 +156,25 @@ const scratchContainer = document.querySelector('.scratch-container');
 const downloadBtn = document.getElementById('downloadBtn');
 const hiddenImage = document.getElementById('hiddenImage');
 
-canvas.width = scratchContainer.clientWidth;
-canvas.height = scratchContainer.clientHeight;
+function resizeCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  const width = scratchContainer.clientWidth;
+  const height = scratchContainer.clientHeight;
+  canvas.width = Math.max(1, Math.floor(width * dpr));
+  canvas.height = Math.max(1, Math.floor(height * dpr));
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+  // reset transform and scale for crisp drawing on high-DPI
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  // fill scratch layer
+  ctx.fillStyle = '#b0b0b0';
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillRect(0,0,width,height);
+}
 
-// fill scratch layer
-ctx.fillStyle = '#b0b0b0';
-ctx.fillRect(0,0,canvas.width,canvas.height);
+// initial size and on resize
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
 let isDrawing = false;
 let downloadShown = false;
@@ -175,15 +203,22 @@ function scratch(e){
   ctx.beginPath();
   ctx.arc(pos.x,pos.y,radius,0,Math.PI*2);
   ctx.fill();
-  console.log(pos.x, pos.y)
-  spawnHeart(pos.x,pos.y);
+  // spawn heart at page coordinates so it lines up with the cursor
+  const rect = canvas.getBoundingClientRect();
+  spawnHeart(rect.left + pos.x, rect.top + pos.y);
 }
 
 function spawnHeart(x,y){
   const heart = document.createElement('div');
   heart.classList.add('heart');
-  heart.style.left = x+'px';
-  heart.style.top = y+'px';
+  // add a tiny random offset so multiple hearts don't perfectly overlap
+  const ox = (Math.random()-0.5) * 20;
+  const oy = (Math.random()-0.5) * 20;
+  heart.style.left = (x + ox) + 'px';
+  heart.style.top = (y + oy) + 'px';
+  // randomize size slightly
+  const scale = 0.9 + Math.random() * 0.4;
+  heart.style.fontSize = (16 * scale) + 'px';
   heart.innerText='💖';
   document.body.appendChild(heart);
   setTimeout(()=>heart.remove(),1000);
