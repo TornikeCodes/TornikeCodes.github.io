@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relationship Feedback</title>
+<style>
+  body {
+    margin:0; padding:0;
+    font-family: 'Poppins', sans-serif;
+    background:#111;
+    color:#fff;
+    display:flex; justify-content:center; align-items:center;
+    height:100vh;
+  }
+  #container {
+    background:#1a1a1a;
+    padding:30px;
+    border:3px solid #ff69b4;
+    border-radius:20px;
+    width:90%; max-width:500px;
+    text-align:center;
+  }
+  textarea {
+    width:100%; padding:10px; margin:10px 0; border-radius:10px;
+    border:2px solid #ff69b4; background:#222; color:#fff;
+    font-size:16px;
+  }
+  button {
+    padding:12px 24px; font-size:18px;
+    background:#ff69b4; border:none; border-radius:12px;
+    cursor:pointer; color:#fff; font-weight:bold;
+    transition: transform 0.2s;
+  }
+  button:hover { transform:scale(1.05); }
+  #thanks {
+    margin-top:20px; color:#ffb6c1; font-weight:bold;
+  }
+</style>
+</head>
+<body>
+
+<div id="container">
+  <h2>Hey love 💖</h2>
+  <p>How are you feeling about us today?</p>
+  <textarea id="feelings" placeholder="Write how you feel..."></textarea>
+  
+  <p>What's one thing we can improve towards in the context of our relationship? What is something you want to get comfortable doing?</p>
+  <textarea id="improve" placeholder="Your thoughts... I think we should get on call more often..."></textarea>
+  
+  <button id="submitBtn">Send Feedback</button>
+  <div id="thanks"></div>
+</div>
+
+<script>
+const submitBtn = document.getElementById('submitBtn');
+const feelings = document.getElementById('feelings');
+const improve = document.getElementById('improve');
+const thanks = document.getElementById('thanks');
+
+// Replace this URL with your Google Apps Script Web App URL
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxapC_fqVeYOtJ_nCluzz1pciyDYkdqMGOy-hxfUnBtUS8MjrtMfzSyIC6i11MaxEVi/exec';
+
+submitBtn.addEventListener('click', async () => {
+  const data = {
+    feelings: feelings.value,
+    improve: improve.value
+  };
+  
+  try {
+    const response = await fetch(SHEET_URL, {
+      method:'POST',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type':'application/json' }
+    });
+    const result = await response.json();
+    if(result.status === 'success'){
+      thanks.textContent = "Thanks for your feedback! 💖";
+      feelings.value = '';
+      improve.value = '';
+    }
+  } catch(err){
+    console.error(err);
+    thanks.textContent = "Oops, something went wrong...";
+  }
+});
+</script>
+
+</body>
+</html>
