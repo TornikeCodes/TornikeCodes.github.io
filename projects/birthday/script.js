@@ -1,5 +1,5 @@
 (() => {
-  const BDAY = "2025-11-9";
+  const BDAY = "2025-11-10";
   const RECIPIENT_OFFSET = 4;
   const OFFSETS = [];
   for (let o=14; o>=-12; o--) OFFSETS.push(o);
