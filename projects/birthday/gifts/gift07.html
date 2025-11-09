@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift 7 — Find My Love Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  html, body {
+    margin:0; padding:0;
+    width:100%; height:100%;
+    overflow:hidden;
+    font-family:'Poppins', sans-serif;
+    background:#111;
+  }
+
+  body {
+    position:relative;
+    color:#fff;
+  }
+
+  .note {
+    position:absolute;
+    width:140px;
+    padding:8px;
+    background:rgba(255,255,255,1);
+    color:#111;
+    border-radius:8px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    user-select:none;
+    pointer-events:none;
+  }
+
+  #overlay {
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    background: rgba(0,0,0, 1);
+    z-index:1000;
+    mix-blend-mode:normal;
+    transition:background 0.05s;
+  }
+
+  #finalMessage {
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%, -50%);
+    font-size:36px;
+    text-align:center;
+    color:#ffb6c1;
+    display:none;
+    animation: glowHeart 1.5s ease-in-out infinite alternate;
+    z-index:2000;
+  }
+
+  @keyframes glowHeart {
+    0% {text-shadow:0 0 10px #ffb6c1, 0 0 20px #ffb6c1;}
+    100% {text-shadow:0 0 20px #ff69b4, 0 0 40px #ff69b4;}
+  }
+</style>
+</head>
+<body>
+
+<div id="finalMessage">💖 You’ve found every little piece of my heart 💖</div>
+<div id="overlay"></div>
+
+<script>
+  const NUM_NOTES = 12;
+  const MESSAGES = [
+    "You make my heart race 💓",
+    "I love your smile 😍",
+    "Every day with you is special 🌹",
+    "You are my sunshine ☀️",
+    "I adore your laugh 😘",
+    "You complete me 💕",
+    "Thinking of you always 💌",
+    "You’re my dream come true ✨",
+    "Forever yours ❤️",
+    "Your hugs are magic 🤗",
+    "I love our memories together 🥰",
+    "You are my everything 💖"
+  ];
+
+  const notes = [];
+  const overlay = document.getElementById('overlay');
+  const finalMessage = document.getElementById('finalMessage');
+
+  const placedRects = [];
+
+  // function to check overlap
+  function isOverlapping(x, y, w, h){
+    for(let rect of placedRects){
+      if(x < rect.x + rect.w &&
+         x + w > rect.x &&
+         y < rect.y + rect.h &&
+         y + h > rect.y){
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // create notes with non-overlapping positions
+  for(let i=0;i<NUM_NOTES;i++){
+    const div = document.createElement('div');
+    div.classList.add('note');
+    div.textContent = MESSAGES[i];
+
+    const noteWidth = 140;
+    const noteHeight = 50;
+    let x, y, attempts = 0;
+
+    do{
+      x = Math.random()*(window.innerWidth - noteWidth);
+      y = Math.random()*(window.innerHeight - noteHeight);
+      attempts++;
+      if(attempts>1000) break; // fallback in case it's impossible
+    } while(isOverlapping(x,y,noteWidth,noteHeight));
+
+    placedRects.push({x:x, y:y, w:noteWidth, h:noteHeight});
+    div.style.left = `${x}px`;
+    div.style.top = `${y}px`;
+    document.body.appendChild(div);
+    notes.push(div);
+  }
+
+  let foundCount = 0;
+  const revealedNotes = new Set();
+
+  document.addEventListener('mousemove', e=>{
+    const x = e.clientX;
+    const y = e.clientY;
+    // overlay with circular transparent "flashlight"
+    overlay.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 140px)`;
+
+    notes.forEach((note, idx)=>{
+      const rect = note.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+      const dist = Math.hypot(cx - x, cy - y);
+      if(dist < 70 && !revealedNotes.has(idx)){
+        revealedNotes.add(idx);
+        foundCount++;
+        // optional click sound
+        const audio = new Audio('https://freesound.org/data/previews/256/256113_3263906-lq.mp3');
+        audio.volume = 0.2;
+        audio.play();
+        if(foundCount===NUM_NOTES){
+          finalMessage.style.display='block';
+        }
+      }
+    });
+  });
+</script>
+</body>
+</html>
