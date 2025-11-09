@@ -40,15 +40,6 @@
     tryPlayMusic();
   });
 
-  // test gift button
-  testGiftBtn.addEventListener('click', () => {
-    const giftList = ZONES.map((tz,i)=>`Gift ${i+1} (UTC${tz>=0?'+'+tz:tz})`).join('\n');
-    const selected = prompt(`Testing: choose gift number to open:\n\n${giftList}`);
-    const idx = parseInt(selected)-1;
-    if (isNaN(idx) || idx<0 || idx>=ZONES.length){alert('Invalid number'); return;}
-    window.location.href = `gifts/gift${String(idx+1).padStart(2,'0')}.html`;
-  });
-
   function utcMidnightMsFor(dateStr){ const [y,m,d] = dateStr.split('-').map(Number); return Date.UTC(y,m-1,d,0,0,0);}
   function unlockUTCmsForZone(dateStr, tzOffset){ return utcMidnightMsFor(dateStr)-(tzOffset*3600*1000);}
   function openedKey(i){ return `tzgift_opened_${i}`; }
