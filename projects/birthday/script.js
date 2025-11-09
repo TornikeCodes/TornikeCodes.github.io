@@ -1,6 +1,6 @@
 (() => {
-  const BDAY = "2025-11-10";
-  const RECIPIENT_OFFSET = 3;
+  const BDAY = "2025-11-09";
+  const RECIPIENT_OFFSET = 4;
   const OFFSETS = [];
   for (let o=14; o>=-12; o--) OFFSETS.push(o);
   const ZONES = OFFSETS.slice(0,24); 
