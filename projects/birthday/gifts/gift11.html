@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift 11 — Our Storybook</title>
+<style>
+  html, body {
+    margin:0; padding:0;
+    width:100%; height:100%;
+    background:#111;
+    font-family:'Poppins', sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#fff;
+    overflow:hidden;
+  }
+
+  #storybook {
+    width:80%;
+    max-width:800px;
+    height:80%;
+    background:#1a1a1a;
+    border:3px solid #ff69b4;
+    border-radius:20px;
+    padding:30px;
+    box-sizing:border-box;
+    overflow-y:auto;
+    position:relative;
+  }
+
+  #storybook h1 {
+    text-align:center;
+    font-size:32px;
+    color:#ffb6c1;
+    margin-bottom:20px;
+  }
+
+  #storybook p {
+    line-height:1.7;
+    margin-bottom:15px;
+    font-size:18px;
+    color:#fff;
+  }
+
+  .floatingHeart {
+    position:absolute;
+    color:#ff69b4;
+    font-size:20px;
+    font-weight:bold;
+    pointer-events:none;
+    animation:floatUp linear forwards;
+    z-index:5;
+  }
+
+  @keyframes floatUp {
+    0% {transform:translateY(100%); opacity:1;}
+    100% {transform:translateY(-20%); opacity:0;}
+  }
+
+  .heart {
+    font-size:3rem;
+    margin:20px 0;
+    color:#ff6b9f;
+    animation:beat 1s infinite;
+    text-align:center;
+  }
+
+  @keyframes beat {
+    0%,100% {transform:scale(1);}
+    50% {transform:scale(1.05);}
+  }
+</style>
+</head>
+<body>
+
+<div id="storybook">
+  <h1 class="heart">Our story 💖</h1>
+
+  <p>It all started on Roblox, in ERLC. I remember it clearly, I was just doing my thing, cuffrushing people, and suddenly a message popped up: "Hi".</p>
+
+  <p>I looked and saw her username, and it was you. That tiny message was the first spark.</p>
+
+  <p>Our first conversation went something like this:</p>
+
+  <strong> -- TY for the arrest</strong>
+
+  <p>And just like that, we started talking casually, joking, laughing. She was struggling with puzzles and needed help, and I was just there — it was simple, nothing forced, but somehow it clicked. Even when she couldn’t chat properly in Roblox and had to borrow a barcode account just to talk, it didn’t matter. We made it work.</p>
+
+  <p>We laughed about how unfair it was that chat was banned in her country and how she had to use a VPN just to log in and solve puzzles. I remember thinking, <em>this is someone I want to spend more time with, even if it’s just online right now.</em></p>
+
+  <p>The funny, small moments kept piling up. Waving at each other, random little jokes, sharing frustration over Roblox glitches, and always making sure the other felt seen. What started as a few messages turned into hours of conversation, and soon enough, I realized I was looking forward to every notification from her.</p>
+
+  <p>We started meeting more, sharing not just Roblox moments but little glimpses into our daily lives. The way she laughed, the way she thought about problems, the way she cared about silly things, it all added up.</p>
+
+  <p>Eventually, those tiny messages and inside jokes grew into something bigger. I knew I liked her more than just a friend. And she liked me back. So one day, we decided to take that step, and we started dating.</p>
+
+  <p>From there, it was a mix of adventures, games, calls, and making each other laugh even on tough days. We celebrated small victories, comforted each other in failures, and just built this rhythm together.</p>
+
+  <p>And then came the big dreams, imagining our future, laughing about Roblox strategies, thinking about trips we’d take together, maybe even living in the same city, sharing daily routines, waking up next to each other someday. Every “what if” became a promise in our hearts.</p>
+
+  <p>Fast forward, we’ve grown closer in ways neither of us expected. From the first “Haii” to a million messages later, it’s wild how one tiny interaction turned into a full story of love. And this story isn’t just about the past, it’s about all the adventures, laughs, and memories waiting for us in the future.</p>
+
+    <p>From Roblox to real life, from casual messages to deep conversations, from virtual gestures to real emotions, it all led to this. And if you’re reading this now, know that every moment with you is a page in the book of <b>us</b>.</p>
+
+  <p>No matter what happens tomorrow, the story continues, because the best chapters are always yet to come.</p>
+</div>
+
+<script>
+  // Floating hearts
+  function spawnHeart() {
+    const heart = document.createElement('div');
+    heart.className='floatingHeart';
+    heart.textContent='❤';
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+    heart.style.fontSize = (16 + Math.random()*20) + 'px';
+    heart.style.animationDuration = (3 + Math.random()*2) + 's';
+    document.body.appendChild(heart);
+    setTimeout(()=>heart.remove(),5000);
+  }
+
+  setInterval(spawnHeart, 400); // spawn a heart every 0.4s
+</script>
+
+</body>
+</html>
