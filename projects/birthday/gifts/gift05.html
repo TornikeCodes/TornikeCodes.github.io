@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Gift 5 — Love Jar</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#fff1f3;
+    --bg2:#ffe6ea;
+    --jar:#f8fbff;
+    --accent:#ff6b9f;
+    --muted:#6b4a53;
+  }
+  html,body{height:100%;margin:0;font-family:'Poppins',sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));-webkit-font-smoothing:antialiased;overflow:hidden}
+  .stage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+  .card{width:min(820px,94%);max-width:900px;background:transparent;border-radius:20px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .title{font-weight:700;color:#4b2330;font-size:20px}
+  .subtitle{color:var(--muted);font-size:14px;text-align:center;max-width:720px}
+
+  /* jar area */
+  .play-area{position:relative;width:520px;height:520px;display:flex;align-items:center;justify-content:center}
+  .jar {
+    position:relative;
+    width:320px;height:360px;
+    border-radius:40px 40px 28px 28px / 44px 44px 12px 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(245,243,247,0.7));
+    border: 6px solid rgba(255,255,255,0.6);
+    box-shadow: 0 20px 50px rgba(80,30,40,0.10), inset 0 -8px 20px rgba(200,160,170,0.03);
+    display:block;
+    overflow:visible;
+    cursor:pointer;
+    transition: transform .18s ease;
+  }
+
+  /* jar glass rim */
+  .jar:before{
+    content:"";position:absolute;left:-22px;right:-22px;top:-18px;height:36px;border-radius:50%;background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.15));filter:blur(2px);opacity:.9
+  }
+
+  /* papers inside - visual */
+  .papers {
+    position:absolute;left:20px;right:20px;bottom:18px;top:48px;pointer-events:none;
+    display:flex;flex-wrap:wrap;gap:8px;align-content:flex-end;justify-content:center;padding:8px;
+  }
+  .paper-thumb{
+    width:46px;height:20px;border-radius:3px;background:linear-gradient(180deg,#fff,#fff7f8);box-shadow:0 2px 6px rgba(0,0,0,0.08);transform:rotate(-6deg);
+  }
+
+  /* shake */
+  .jar.shake{animation:jarShake .9s ease both}
+  @keyframes jarShake{
+    0%{transform:translateY(0) rotate(0)}
+    10%{transform:translateY(-6px) rotate(-3deg)}
+    30%{transform:translateY(4px) rotate(3deg)}
+    50%{transform:translateY(-3px) rotate(-2deg)}
+    70%{transform:translateY(2px) rotate(1deg)}
+    100%{transform:translateY(0) rotate(0)}
+  }
+
+  /* spawned note */
+  .note {
+    position:absolute;
+    left:50%; transform:translateX(-50%) translateY(30px) scale(.9);
+    width:260px; height:120px;
+    z-index:30;
+    pointer-events:auto;
+    display:flex;align-items:center;justify-content:center;
+    transition: transform .6s cubic-bezier(.2,.9,.2,1), opacity .4s;
+    opacity:0;
+  }
+  .note .fold {
+    width:100%; height:100%;
+    background:linear-gradient(180deg,#fff9f9,#fff);
+    border-radius:10px;
+    box-shadow:0 18px 40px rgba(60,20,30,0.12);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:600;color:#4b2b35;padding:18px;text-align:center;line-height:1.3;
+    transform-origin:center;
+  }
+  /* folded look */
+  .fold:before{
+    content:"";position:absolute;left:0;right:0;top:0;height:20px;border-radius:8px;background:linear-gradient(180deg,rgba(0,0,0,0.03),transparent);opacity:.6
+  }
+
+  .note.show{opacity:1;transform:translateX(-50%) translateY(-120px) scale(1)}
+  .note.unfold .fold{transform:scaleY(1);}
+
+  /* small heart pop */
+  .pop-heart{position:absolute;font-size:18px;z-index:40;opacity:0;transform:translateY(0);transition:opacity .9s, transform .9s}
+  .pop-heart.show{opacity:1;transform:translateY(-40px);}
+
+  .controls{display:flex;gap:10px;align-items:center;margin-top:6px}
+  .btn{padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:white;font-weight:700;cursor:pointer}
+  .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--muted)}
+
+  .back{margin-top:8px;font-size:14px;color:var(--muted);text-decoration:none}
+  .credit{font-size:12px;color:var(--muted);margin-top:4px}
+  @media (max-width:640px){ .card{padding:8px} .play-area{width:360px;height:360px} .jar{width:260px;height:300px} .note{width:220px;height:120px} }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="card" role="main" aria-label="Love jar gift">
+      <div class="title">Gift 5 — The Love Jar</div>
+      <div class="subtitle">Click the jar to shake it. A folded love note will float out with a sweet message.</div>
+
+      <div class="play-area" id="playArea">
+        <div class="jar" id="jar" title="Click to shake the jar" aria-pressed="false">
+          <div class="papers" id="papers">
+            <!-- decorative thumbs -->
+            <div class="paper-thumb"></div><div class="paper-thumb" style="transform:rotate(2deg)"></div>
+            <div class="paper-thumb" style="transform:rotate(-4deg)"></div><div class="paper-thumb" style="transform:rotate(6deg)"></div>
+            <div class="paper-thumb" style="transform:rotate(-8deg)"></div><div class="paper-thumb" style="transform:rotate(10deg)"></div>
+            <div class="paper-thumb" style="transform:rotate(-2deg)"></div><div class="paper-thumb" style="transform:rotate(4deg)"></div>
+          </div>
+        </div>
+
+        <!-- spawned note placeholder -->
+        <div id="noteHolder"></div>
+        <div id="popHeart" class="pop-heart">💖</div>
+      </div>
+
+      <div class="controls">
+        <button id="forcePlay" class="btn ghost">Force reveal (test)</button>
+        <button id="muteBtn" class="btn ghost">🔊</button>
+      </div>
+
+      <a class="back" href="../index.html">Back to gifts</a>
+      <div class="credit">Auto-generated messages — edit script to customize</div>
+    </div>
+  </div>
+
+  <!-- optional sfx -->
+  <audio id="sfxShake" src="../assets/shake.mp3" preload="auto"></audio>
+  <audio id="sfxUnfold" src="../assets/unfold.mp3" preload="auto"></audio>
+
+<script>
+(() => {
+  const jar = document.getElementById('jar');
+  const noteHolder = document.getElementById('noteHolder');
+  const popHeart = document.getElementById('popHeart');
+  const forceBtn = document.getElementById('forcePlay');
+  const muteBtn = document.getElementById('muteBtn');
+  const sfxShake = document.getElementById('sfxShake');
+  const sfxUnfold = document.getElementById('sfxUnfold');
+
+  let muted = false;
+  muteBtn.addEventListener('click', () => {
+    muted = !muted;
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+    [sfxShake, sfxUnfold].forEach(a => { if(a) a.muted = muted; });
+  });
+
+  // small pool of auto-generated love messages (you can replace or expand)
+  const MESSAGES = [
+    "I love how you light up my whole room, even 7,000 miles away!",
+    "You make even my ordinary, boring days feel like an adventure",
+    "Thank you for being so patient and kind with me",
+    "I fall for you over and over every single day (it never gets old)",
+    "Your smile is my absolute favorite thing to wake up to, even in a picture",
+    "You make me want to be the best me, which is pretty awesome",
+    "I love the way you care for literally everyone around you",
+    "Everything feels instantly better when I know you’re near (even in Dubai)",
+    "You are brave, beautiful, and I am thankful to have you in my life",
+    "You turn tiny moments into our best memories, even while playing games",
+    "With you, I’ve found my home, no matter what time zone we're in",
+    "I adore the gentle and bright way you see the whole world",
+    "You’re my favorite hello and my absolute hardest goodbye",
+    "Talking to you is the best part of every single day",
+    "Thank you for loving me exactly the way you do. it means everything"
+];
+
+  // shuffle indexes for non-repeating reveals until exhausted
+  let indexes = [];
+  function refillIndexes(){
+    indexes = MESSAGES.map((_,i)=>i);
+    for (let i = indexes.length-1; i>0; i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [indexes[i], indexes[j]] = [indexes[j], indexes[i]];
+    }
+  }
+  refillIndexes();
+
+  function playSfx(el){
+    if(!el) return;
+    el.currentTime = 0;
+    el.play().catch(()=>{});
+  }
+
+  function spawnNote(msg){
+    // create note DOM
+    const note = document.createElement('div');
+    note.className = 'note';
+    note.innerHTML = `<div class="fold">${msg}</div>`;
+    noteHolder.appendChild(note);
+
+    // position at jar mouth (calculate visually)
+    const jarRect = jar.getBoundingClientRect();
+    const holderRect = noteHolder.getBoundingClientRect();
+    // place centered horizontally at jar mouth
+    const startX = jarRect.left + jarRect.width/2;
+    const startY = jarRect.top + 40;
+    note.style.left = `calc(50% - ${note.offsetWidth/2}px)`; // initial centered
+    // small delay then animate
+    requestAnimationFrame(()=> {
+      note.classList.add('show'); // transitions to float up
+      // play unfold sfx a bit after float
+      setTimeout(()=> {
+        if(!muted) playSfx(sfxUnfold);
+        // unfold visual (we keep simple: show text is already visible)
+        note.classList.add('unfold');
+        // show little pop heart
+        popHeart.classList.add('show');
+        setTimeout(()=>popHeart.classList.remove('show'),900);
+      }, 420);
+    });
+
+    // after a few seconds, fade out & remove
+    setTimeout(()=>{
+      note.style.opacity = '0';
+      note.style.transform += ' scale(.98) translateY(-20px)';
+      setTimeout(()=> note.remove(),800);
+    }, 4200);
+  }
+
+  function pickMessage(){
+    if(indexes.length === 0) refillIndexes();
+    return MESSAGES[indexes.pop()];
+  }
+
+  function shakeAndReveal(){
+    jar.classList.remove('shake');
+    // force reflow to restart animation
+    void jar.offsetWidth;
+    jar.classList.add('shake');
+    if(!muted) playSfx(sfxShake);
+
+    // spawn a note with random message
+    const msg = pickMessage();
+    setTimeout(()=> spawnNote(msg), 420); // after shake
+  }
+
+  jar.addEventListener('click', (e)=>{
+    shakeAndReveal();
+  });
+
+  // force reveal for testing
+  forceBtn.addEventListener('click', ()=> shakeAndReveal());
+
+  // small accessibility: keyboard trigger (space/enter)
+  jar.tabIndex = 0;
+  jar.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); shakeAndReveal(); }
+  });
+
+  // initial mute state
+  muted = false;
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+})();
+</script>
+</body>
+</html>
