@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift 10 — Secret Robux Surprise</title>
+<style>
+  html, body {
+    margin:0; padding:0;
+    width:100%; height:100%;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    font-family: 'Poppins', sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  #container {
+    width:400px;
+    padding:30px;
+    background:#fff;
+    border-radius:20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    text-align:center;
+  }
+  @keyframes beat {
+    0%,100% {transform:scale(1);}
+    50% {transform:scale(1.2);}
+  }
+
+ .heart {
+    font-size:3rem;
+    margin:20px 0;
+    color:#ff6b9f;
+    animation:beat 1s infinite;
+    text-align:center;
+  }
+
+  h2 {
+    color:#ff69b4;
+    margin-bottom:20px;
+  }
+
+  #instruction {
+    font-size:18px;
+    margin-bottom:20px;
+    color:#333;
+  }
+
+  #surpriseInput {
+    width:80%;
+    padding:10px;
+    font-size:16px;
+    border:2px solid #ff69b4;
+    border-radius:10px;
+    margin-bottom:15px;
+  }
+
+  #sendBtn {
+    padding:12px 24px;
+    font-size:16px;
+    font-weight:bold;
+    background:#ff69b4;
+    color:white;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    transition:transform 0.2s;
+  }
+
+  #sendBtn:hover {
+    transform:scale(1.05);
+  }
+
+  #confirmation {
+    margin-top:15px;
+    font-weight:bold;
+    color:green;
+    display:none;
+  }
+</style>
+</head>
+<body>
+
+<div id="container">
+  <h1 class="heart">💖</h1>
+  <h2>🎁 Your 10th Gift! 🎁</h2>
+  <div id="instruction">
+    To unlock your surprise, send me this secret message: <br>
+    <em>"I’m ready for the ultimate surprise!"</em>
+  </div>
+  <div id="confirmation">Message sent! Check your Robux surprise soon 💌</div>
+</div>
+
+<script>
+  const input = document.getElementById('surpriseInput');
+  const button = document.getElementById('sendBtn');
+  const confirmation = document.getElementById('confirmation');
+
+  button.addEventListener('click', () => {
+    const text = input.value.trim();
+    if(text.toLowerCase() === "i’m ready for the ultimate surprise!" || text.toLowerCase() === "i'm ready for the ultimate surprise!"){
+      confirmation.style.display = 'block';
+      input.disabled = true;
+      button.disabled = true;
+    } else {
+      alert("Hmm, that’s not the correct secret message! Try again 😉");
+    }
+  });
+</script>
+
+</body>
+</html>
