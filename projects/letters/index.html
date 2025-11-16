@@ -57,6 +57,15 @@
     animation: fadeIn 0.8s forwards;
   }
 
+  .card.disabled {
+    pointer-events: none;          /* disables click */
+    opacity: 0.5;                  /* faded look */
+    background: #fce7f2;           /* lighter background */
+    color: #ffa1c0;                /* muted text color */
+    box-shadow: 0 4px 12px rgba(255, 120, 150, 0.15);
+    cursor: not-allowed;
+  }
+
   @keyframes fadeIn {
     to { opacity: 1; transform: scale(1); }
   }
@@ -87,17 +96,17 @@
   <a class="card" href="letters/anxious.html">😰 Anxious</a>
   <a class="card" href="letters/tired.html">😴 Tired</a>
   <a class="card" href="letters/sad.html">😭 Sad</a>
-  <a class="card" href="letters/homesick.html">🏡 Homesick</a>
+  <a class="card disabled" href="letters/homesick.html">🏡 Homesick</a>
   <a class="card" href="letters/angry.html">😡 Angry</a>
-  <a class="card" href="letters/jealous.html">😣 Jealous</a>
-  <a class="card" href="letters/insecure.html">🤔 Insecure</a>
+  <a class="card disabled" href="letters/jealous.html">😣 Jealous</a>
+  <a class="card disabled" href="letters/insecure.html">🤔 Insecure</a>
   <a class="card" href="letters/overwhelmed.html">🌊 Overwhelmed</a>
   <a class="card" href="letters/bored.html">😐 Bored</a>
-  <a class="card" href="letters/nostalgic.html">🌸 Nostalgic</a>
-  <a class="card" href="letters/unmotivated.html">😔 Unmotivated</a>
-  <a class="card" href="letters/confused.html">😕 Confused</a>
-  <a class="card" href="letters/grieving.html">🕊️ Grieving</a>
-  <a class="card" href="letters/sick.html">🤒 Sick</a>
+  <a class="card disabled" href="letters/nostalgic.html">🌸 Nostalgic</a>
+  <a class="card disabled" href="letters/unmotivated.html">😔 Unmotivated</a>
+  <a class="card disabled" href="letters/confused.html">😕 Confused</a>
+  <a class="card disabled" href="letters/grieving.html">🕊️ Grieving</a>
+  <a class="card disabled" href="letters/sick.html">🤒 Sick</a>
   <a class="card" href="letters/need-a-laugh.html">😂 Need a Laugh</a>
   <a class="card" href="letters/missing-you.html">💌 Missing You</a>
   <a class="card" href="letters/any-emotion.html">💖 Any Emotion</a>
