@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request an Emotion</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    font-family: 'Quicksand', sans-serif;
+    background: linear-gradient(135deg, #ffe4f0, #fbeaff);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .container {
+    background: #ffffffee;
+    border-radius: 25px;
+    padding: 40px;
+    max-width: 700px;
+    width: 100%;
+    box-shadow: 0 10px 25px rgba(255, 120, 160, 0.3);
+    text-align: center;
+    animation: fadeIn 1s ease;
+  }
+  h1 {
+    font-family: 'Pacifico', cursive;
+    font-size: 2.5rem;
+    color: #ff6fa5;
+    margin-bottom: 25px;
+  }
+  label {
+    font-size: 1.1rem;
+    color: #d94b8a;
+    font-weight: 600;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #ffb4d4;
+    margin-top: 10px;
+    font-size: 1rem;
+    outline: none;
+  }
+  textarea {
+    resize: none;
+    height: 120px;
+  }
+  button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: #ff6fa5;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.25s;
+  }
+  button:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+  .success {
+    margin-top: 20px;
+    color: #d94b8a;
+    font-weight: 600;
+    display: none;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Request an Emotion 💌</h1>
+    <p style="color:#d94b8a; font-size:1.1rem;">If you're feeling something that isn't listed yet, tell me what it is so I can write a special letter for you. ♡</p>
+
+    <label>What emotion are you feeling?</label>
+    <input id="emotion" placeholder="Type the emotion here..." />
+
+    <label style="margin-top:20px; display:block;">Anything you want to say about it?</label>
+    <textarea id="details" placeholder="Optional... explain how you're feeling"></textarea>
+
+    <button onclick="submitForm()">Send Request</button>
+
+    <div class="success" id="successMsg">Your request has been sent! ♡</div>
+
+    <a href="../index.html" style="display:block; margin-top:25px; color:#ff8fb1; font-weight:600;">← Back to Letters</a>
+  </div>
+
+<script>
+// Replace with your Google Apps Script Web App URL
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzvzn7JWzwj84eT-KT6VkVjl6QP1hTIEicik-gMNpVY7ih4UREW_oS1JGpwh_qnYY54/exec";
+
+function submitForm() {
+  const emotion = document.getElementById("emotion").value.trim();
+  const details = document.getElementById("details").value.trim();
+
+  if (!emotion) {
+    alert("Please enter an emotion.");
+    return;
+  }
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ emotion, details })
+  })
+  .then(() => {
+    document.getElementById("successMsg").style.display = "block";
+    document.getElementById("emotion").value = "";
+    document.getElementById("details").value = "";
+  })
+  .catch(err => console.error(err));
+}
+</script>
+
+</body>
+</html>
