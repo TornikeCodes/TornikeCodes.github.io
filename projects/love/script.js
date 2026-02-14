@@ -21,6 +21,8 @@ const CONFIG = {
   },
 };
 
+
+
 const el = {
   phaseLabel: document.getElementById("phase-label"),
   statusText: document.getElementById("status-text"),
