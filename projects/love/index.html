@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>For My Love</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="fx-canvas" aria-hidden="true"></canvas>
+  <div id="emoji-rain" aria-hidden="true"></div>
+  <div id="heart-rain" aria-hidden="true"></div>
+
+  <main class="shell">
+    <section class="glass-card">
+      <p class="kicker" id="phase-label">❤️ 11:59 ❤️</p>
+      <h1>For You, Always</h1>
+      <p class="message" id="status-text">This gift opens when the countdown ends.</p>
+
+      <div id="countdown-section" aria-live="polite">
+        <div class="countdown" id="countdown">
+          <div class="time-block"><span id="days">00</span><small>Days</small></div>
+          <div class="time-block"><span id="hours">00</span><small>Hours</small></div>
+          <div class="time-block"><span id="minutes">00</span><small>Minutes</small></div>
+          <div class="time-block"><span id="seconds">00</span><small>Seconds</small></div>
+        </div>
+      </div>
+
+      <div class="player-box hidden" id="player-box">
+        <audio id="song-player" preload="auto"></audio>
+        <div class="player-row">
+          <span id="player-track-label">Our Song</span>
+          <span id="player-time">00:00</span>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <button id="start-btn" class="primary-btn hidden" type="button">Tap To Start Music</button>
+      </div>
+
+      <div class="actions-row">
+        <button id="simulate-btn" class="tiny-btn" type="button">Simulate Timeline</button>
+      </div>
+
+      <div class="lyrics-wrap is-disabled" id="lyrics-wrap" aria-live="polite" aria-disabled="true">
+        <p id="current-lyric">Lyrics will appear here as the song plays.</p>
+      </div>
+    </section>
+  </main>
+
+  <section class="envelope-stage" id="envelope-stage" aria-hidden="true">
+    <div class="envelope-drop" id="envelope-drop">
+      <p class="envelope-title">One Last Surprise</p>
+      <div class="envelope-art" id="envelope-art">
+        <div class="envelope-flap"></div>
+        <div class="envelope-body"></div>
+        <div class="envelope-heart">❤</div>
+      </div>
+      <button id="open-envelope-btn" class="primary-btn envelope-btn" type="button">Open The Envelope</button>
+    </div>
+
+    <article class="letter-card hidden" id="letter-card">
+      <div class="letter-head">
+        <h2>My Message For You</h2>
+        <button id="close-letter-btn" class="tiny-btn" type="button">Close</button>
+      </div>
+      <div id="letter-content" class="letter-content">
+        <center><h1><b>Happy Birthday!</b></h1></center>
+        <center>
+          <p>My love, I wanted to make sure you were the first person in the entire world to feel celebrated today. Right now, it's midnight on Christmas Island (Kiribati), the very first place your birthday begins on the map! As this special day starts to travel across the globe, I want you to know:</p>
+          <hr>
+          <p>
+            <b>HAPPY BIRTHDAY TO THE LOVE OF MY LIFE!</b> <br>
+            This day is entirely about celebrating YOU, the most incredible person I have ever known. I want this message to be huge because my love for you is even bigger. I honestly don't know where to begin to describe how much you mean to me, or how deeply I love you.<br>
+            You aren't just my girlfriend. You are my best friend, my confidante, my favorite adventure partner, and the one person who can instantly make a bad day good just by being there. Before you, my world felt like it was in black and white, it was on the verge of falling apart, and when you walked in, when you spoke, when you told me that you loved me, you painted everything in the brightest, most beautiful colors.<br>
+            I love the quiet moments we share. The lazy mornings where I don't want to get up, the comfortable silences, the way you can make me smile without trying. But I also love your energy, your passion, and the fierce way you go after everything you believe in. Your kindness is a constant source of wonder to me. Your smile is my favorite thing in the world.<br>
+            Thank you for your patience, your understanding, and for making every single ordinary day feel extraordinary. Thank you for showing me what true, unconditional love feels like. I don't just love you; I cherish you, I admire you, and I am completely, utterly grateful for you.<br>
+            I promise to spend the rest of our lives making you feel as loved and as celebrated as you deserve to be, starting with this very first moment of your birthday.<br>
+            Have the most wonderful, amazing birthday, my darling. <br>
+            
+          </p><h3><b>I LOVE YOU MORE THAN WORDS CAN SAY.</b></h3>
+        </center>
+      </div>
+    </article>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
