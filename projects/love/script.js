@@ -33,7 +33,6 @@ const el = {
   playerTime: document.getElementById("player-time"),
   progressFill: document.getElementById("progress-fill"),
   startBtn: document.getElementById("start-btn"),
-  simulateBtn: document.getElementById("simulate-btn"),
   lyric: document.getElementById("current-lyric"),
   lyricsWrap: document.getElementById("lyrics-wrap"),
   player: document.getElementById("song-player"),
@@ -77,7 +76,6 @@ async function init() {
 }
 
 function bindEvents() {
-  el.simulateBtn.addEventListener("click", toggleSimulation);
   el.startBtn.addEventListener("click", forceStartFromUserGesture);
   el.openEnvelopeBtn.addEventListener("click", openEnvelopeLetter);
   el.closeLetterBtn.addEventListener("click", closeEnvelopeLetter);
@@ -356,23 +354,6 @@ function setPhase(phase, at) {
   if (state.simulation) {
     el.statusText.textContent += " Simulation mode is active.";
   }
-}
-
-function toggleSimulation() {
-  if (state.simulation) {
-    state.simulation = null;
-    el.simulateBtn.textContent = "Simulate Timeline";
-  } else {
-    const base = new Date();
-    state.simulation = {
-      startAt: new Date(base.getTime() + CONFIG.simulation.preUnlockSeconds * 1000),
-      birthdayAt: new Date(base.getTime() + (CONFIG.simulation.preUnlockSeconds + CONFIG.simulation.valentineToBirthdaySeconds) * 1000),
-    };
-    el.simulateBtn.textContent = "Exit Simulation";
-  }
-
-  resetPlaybackForModeSwitch();
-  tick();
 }
 
 function resetPlaybackForModeSwitch() {
