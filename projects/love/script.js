@@ -15,10 +15,7 @@ const CONFIG = {
   lyricsFile: "lyrics.txt",
   part1Lyrics: "lyrics-part1.txt",
   part2Lyrics: "lyrics-part2.txt",
-  simulation: {
-    preUnlockSeconds: 8,
-    valentineToBirthdaySeconds: 81,
-  },
+  lockAtTransitionBeforeBirthday: false,
 };
 
 
@@ -51,11 +48,12 @@ const el = {
 
 const realSchedule = resolveRealSchedule(new Date());
 const state = {
-  simulation: null,
   unlocked: false,
   birthdayTriggered: false,
+  postTransitionAligned: false,
   autoplayAttempted: false,
   splitHold: false,
+  splitResumeTimer: null,
   activeRainInterval: null,
   lyrics: [],
   lyricIndex: -1,
@@ -110,6 +108,7 @@ function tick() {
     state.unlocked = true;
     state.autoplayAttempted = false;
     state.birthdayTriggered = false;
+    state.postTransitionAligned = false;
   }
 
   showPlayer();
@@ -135,13 +134,25 @@ function tick() {
     triggerBirthdayMoment();
   }
 
-  if (el.player.currentTime < CONFIG.transitionTimestampSec) {
-    el.player.currentTime = CONFIG.transitionTimestampSec;
+  if (!state.postTransitionAligned) {
+    if (el.player.currentTime < CONFIG.transitionTimestampSec - 0.1) {
+      el.player.currentTime = CONFIG.transitionTimestampSec;
+    }
+    state.postTransitionAligned = true;
   }
 
   if (state.splitHold) {
     state.splitHold = false;
     el.player.play().catch(() => {
+      el.startBtn.classList.remove("hidden");
+      el.startBtn.textContent = "Tap To Continue Song";
+    });
+  }
+
+  if (el.player.paused) {
+    el.player.play().then(() => {
+      el.startBtn.classList.add("hidden");
+    }).catch(() => {
       el.startBtn.classList.remove("hidden");
       el.startBtn.textContent = "Tap To Continue Song";
     });
@@ -213,16 +224,53 @@ function onTimeUpdate() {
 }
 
 function enforcePreMidnightSplit() {
+  if (!CONFIG.lockAtTransitionBeforeBirthday) return;
+
   const now = new Date();
   const { birthdayAt } = getSchedule();
   if (now >= birthdayAt) return;
+  if (birthdayAt - now <= 500) return;
 
   if (el.player.currentTime >= CONFIG.transitionTimestampSec) {
     el.player.pause();
     el.player.currentTime = CONFIG.transitionTimestampSec;
     state.splitHold = true;
     el.startBtn.classList.add("hidden");
+
+    if (!state.splitResumeTimer) {
+      const resumeInMs = Math.max(0, birthdayAt - now) + 80;
+      state.splitResumeTimer = setTimeout(() => {
+        state.splitResumeTimer = null;
+        resumeAfterMidnightSplit();
+      }, resumeInMs);
+    }
   }
+}
+
+function resumeAfterMidnightSplit() {
+  const now = new Date();
+  const { birthdayAt } = getSchedule();
+
+  if (now < birthdayAt) {
+    const resumeInMs = Math.max(0, birthdayAt - now) + 80;
+    state.splitResumeTimer = setTimeout(() => {
+      state.splitResumeTimer = null;
+      resumeAfterMidnightSplit();
+    }, resumeInMs);
+    return;
+  }
+
+  state.splitHold = false;
+  if (el.player.currentTime < CONFIG.transitionTimestampSec - 0.1) {
+    el.player.currentTime = CONFIG.transitionTimestampSec;
+  }
+
+  el.player.play().then(() => {
+    el.startBtn.classList.add("hidden");
+  }).catch(() => {
+    el.startBtn.classList.remove("hidden");
+    el.startBtn.textContent = "Tap To Continue Song";
+  });
 }
 
 function onEnded() {
@@ -353,15 +401,18 @@ function setPhase(phase, at) {
     el.statusText.textContent = "!!! Happy birthday baby !!!";
   }
 
-  if (state.simulation) {
-    el.statusText.textContent += " Simulation mode is active.";
-  }
 }
 
 function resetPlaybackForModeSwitch() {
+  if (state.splitResumeTimer) {
+    clearTimeout(state.splitResumeTimer);
+    state.splitResumeTimer = null;
+  }
+
   state.unlocked = false;
   state.autoplayAttempted = false;
   state.birthdayTriggered = false;
+  state.postTransitionAligned = false;
   state.splitHold = false;
   state.lyricIndex = -1;
   state.hasPlayed = false;
@@ -378,7 +429,7 @@ function resetPlaybackForModeSwitch() {
 }
 
 function getSchedule() {
-  return state.simulation || realSchedule;
+  return realSchedule;
 }
 
 function resolveRealSchedule(now) {
