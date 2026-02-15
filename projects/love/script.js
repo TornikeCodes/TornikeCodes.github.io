@@ -2,7 +2,7 @@ const CONFIG = {
   celebrationMonthIndex: 1,
   valentineDay: 14,
   birthdayDay: 15,
-  startHour: 21,
+  startHour: 22,
   startMinute: 58,
   startSecond: 39,
   schedule: {
